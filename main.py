@@ -8,10 +8,10 @@ SCREEN_HEIGHT = 600
 class MyFlatButton(arcade.gui.UIFlatButton):
     def on_click(self, event):
         print("Кнопка 'Начать' была нажата!")
-        # Получаем доступ к окну через функцию arcade.get_window()
         window = arcade.get_window()
-        window.current_photo = window.photo1
-        window.current_state = "photo1"
+        window.show_text = True
+        window.current_text_index = 1  # Начинаем с первого текста
+        arcade.set_background_color(arcade.color.BLACK)
 
 
 class PhotoGame(arcade.Window):
@@ -22,13 +22,18 @@ class PhotoGame(arcade.Window):
         self.manager = arcade.gui.UIManager()
         self.manager.enable()
 
+        # Флаги для отображения текста
+        self.show_text = False
+        self.current_text_index = 0  # 0 - нет текста, 1-5 - тексты
+        self.text_finished = False   # Новый флаг -  тексты завершены
+
         try:
             # Загружаем все фото
-            self.photo1 = arcade.load_texture(r"C:\Users\Алла\Downloads\кабинет с телом.jpg")
-            self.photo2 = arcade.load_texture(r"C:\Users\Алла\Downloads\кабинет с ноутом.jpg")
-            self.photo3 = arcade.load_texture(r"C:\Users\Алла\Downloads\рабочий стол_arcade.jpg")
-            self.photo4 = arcade.load_texture(r"C:\Users\Алла\Downloads\+Белый+шка_измен.jpeg")
-            self.photo5 = arcade.load_texture(r"C:\Users\Алла\Downloads\Group 1 (1).png")
+            self.photo1 = arcade.load_texture("data/кабинет с телом1.jpg")
+            self.photo2 = arcade.load_texture("data/Комната с ноутом2.png")
+            self.photo3 = arcade.load_texture("data/рабочий стол_arcade3.jpg")
+            self.photo4 = arcade.load_texture("data/+Белый+шка_измен4.jpeg")
+            self.photo5 = arcade.load_texture("data/Group 1 (1)5.png")
 
         except Exception as e:
             print(f"Ошибка загрузки изображения: {e}")
@@ -41,8 +46,8 @@ class PhotoGame(arcade.Window):
         # Создаем кнопку "Начать" для стартового экрана - В ЦЕНТРЕ
         self.button = MyFlatButton(
             text="Начать",
-            center_x=SCREEN_WIDTH // 2,  # Центр по горизонтали
-            center_y=SCREEN_HEIGHT // 2,  # Центр по вертикали
+            center_x=SCREEN_WIDTH // 2,
+            center_y=SCREEN_HEIGHT // 2,
             width=200,
             height=40
         )
@@ -66,59 +71,104 @@ class PhotoGame(arcade.Window):
         self.click_y_min2_comp = 210
         self.click_y_max2_comp = 380
 
-        # Координаты для области кликанья Обратно из photo3 в photo2
+        # координаты для области кликанья Обратно из photo3 в photo2
         self.click_x_min3_back = 700
         self.click_x_max3_back = 800
         self.click_y_min3_back = 0
         self.click_y_max3_back = 100
 
-        # Координаты для области кликанья Шкаф первая комната
+        # координаты для области кликанья Шкаф первая комната
         self.click_x_min1_v = 10
         self.click_x_max1_v = 70
         self.click_y_min1_v = 270
         self.click_y_max1_v = 430
 
-        # Координаты для возврата с фото4 на фото1 (правый верхний угол)
+        # координаты для возврата с фото4 на фото1 (правый верхний угол)
         self.click_x_min4_back = 700
         self.click_x_max4_back = 800
         self.click_y_min4_back = 0
         self.click_y_max4_back = 600
 
+        # определяем тексты
+        self.texts = {
+            1: "Ммм да, мама была права, нужно было идти в универ,\n"
+               "щас бы работал в офисе... бумажки разгребал",
+            2: "Лааадно, Том, соберись, люди нуждаются в тебе,\n"
+               "кто если не ты будет копаться в телах людей.\n"
+               "Господь, я и правду занимаюсь чем-то не тем.",
+            3: "Хотя уже не важно, я слишком долго искал эту работу,\n"
+               "она мне и правда нужна.",
+            4: "Только таак хочется спать...",
+            5: "Почему вообще первый рабочей день и сразу ночная смена??"
+        }
+
     def on_draw(self) -> None:
         self.clear()
 
-        # Рисуем текущую фотографию
-        arcade.draw_texture_rect(
-            self.current_photo,
-            arcade.XYWH(
-                SCREEN_WIDTH // 2,  # x
-                SCREEN_HEIGHT // 2,  # y
-                SCREEN_WIDTH,  # ширина
-                SCREEN_HEIGHT  # высота
-            )
-        )
+        # если показываем текстовые экраны и тексты еще не завершены
+        if self.show_text and not self.text_finished and self.current_text_index > 0:
+            text = self.texts.get(self.current_text_index, "")
 
-        # Рисуем UI элементы (кнопку) только на стартовом экране
-        if self.current_state == "start_screen":
-            self.manager.draw()
+            #текущий текст
+            arcade.draw_text(
+                text,
+                SCREEN_WIDTH // 2,
+                SCREEN_HEIGHT // 2,
+                arcade.color.WHITE,
+                20,
+                anchor_x="center",
+                anchor_y="center",
+                align="center",
+                width=SCREEN_WIDTH - 100,
+                multiline=True
+            )
+        else:
+            # рисуем текущую фотографию
+            arcade.draw_texture_rect(
+                self.current_photo,
+                arcade.XYWH(
+                    SCREEN_WIDTH // 2,
+                    SCREEN_HEIGHT // 2,
+                    SCREEN_WIDTH,
+                    SCREEN_HEIGHT
+                )
+            )
+
+            # Рисуем юи элементы (кнопку) только на стартовом экране
+            if self.current_state == "start_screen":
+                self.manager.draw()
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button != arcade.MOUSE_BUTTON_LEFT:
             return
 
-        # Если мы на стартовом экране, обрабатываем только через UI менеджер
+        # обработка кликов на текстовых экранах (только если тексты еще не завершены)
+        if self.show_text and not self.text_finished and self.current_text_index > 0:
+            if self.current_text_index < 5:
+                # Переходим к следующему тексту
+                self.current_text_index += 1
+            else:
+                # После последнего текста переходим на photo2 и отмечаем, что тексты завершены
+                self.show_text = False
+                self.text_finished = True #     ага
+                self.current_text_index = 0
+                self.current_photo = self.photo2
+                self.current_state = "photo2"
+                arcade.set_background_color(arcade.color.DEFAULT)  # Возвращаем фон по умолчанию
+                print("Тексты завершены, переходим на photo2")
+            return  # Выходим, так как обработали клик на текстовом экране
+
+        # Обработка кликов по фотографиям (только если не показываем текст)
         if self.current_state == "start_screen":
             # UI менеджер сам обработает клик по кнопке
             pass
         elif self.current_state == "photo1":
-            # Если на первой фото - дверь
             if (self.click_x_min1 <= x <= self.click_x_max1 and
                     self.click_y_min1 <= y <= self.click_y_max1):
                 self.current_photo = self.photo2
                 self.current_state = "photo2"
                 print("Перешли на фото 2 (комната с ноутом)")
 
-            # Если на первой фото - шкаф
             elif (self.click_x_min1_v <= x <= self.click_x_max1_v and
                   self.click_y_min1_v <= y <= self.click_y_max1_v):
                 self.current_photo = self.photo4
@@ -126,15 +176,14 @@ class PhotoGame(arcade.Window):
                 print("Перешли на фото 4 (шкаф)")
 
         elif self.current_state == "photo2":
-            # Если на второй фото
-            # Проверяем зону для возврата в первую комнату
+            # Если клик в области для возврата на photo1
             if (self.click_x_min2 <= x <= self.click_x_max2 and
                     self.click_y_min2 <= y <= self.click_y_max2):
                 self.current_photo = self.photo1
                 self.current_state = "photo1"
                 print("Вернулись на фото 1")
 
-            # Проверяем зону для перехода к компьютеру (photo3)
+            # Если клик в области для перехода к компьютеру (photo3)
             elif (self.click_x_min2_comp <= x <= self.click_x_max2_comp and
                   self.click_y_min2_comp <= y <= self.click_y_max2_comp):
                 self.current_photo = self.photo3
@@ -142,7 +191,6 @@ class PhotoGame(arcade.Window):
                 print("Перешли на фото 3 (рабочий стол)")
 
         elif self.current_state == "photo3":
-            # Если на третьей фото, выход из компа
             if (self.click_x_min3_back <= x <= self.click_x_max3_back and
                     self.click_y_min3_back <= y <= self.click_y_max3_back):
                 self.current_photo = self.photo2
@@ -150,7 +198,6 @@ class PhotoGame(arcade.Window):
                 print("Вернулись на фото 2")
 
         elif self.current_state == "photo4":
-            # Если на четвертой фото - возврат на первую
             if (self.click_x_min4_back <= x <= self.click_x_max4_back and
                     self.click_y_min4_back <= y <= self.click_y_max4_back):
                 self.current_photo = self.photo1
