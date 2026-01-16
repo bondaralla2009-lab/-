@@ -1,24 +1,52 @@
 import arcade
+import arcade.gui
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+
+
+class MyFlatButton(arcade.gui.UIFlatButton):
+    def on_click(self, event):
+        print("Кнопка 'Начать' была нажата!")
+        # Получаем доступ к окну через функцию arcade.get_window()
+        window = arcade.get_window()
+        window.current_photo = window.photo1
+        window.current_state = "photo1"
 
 
 class PhotoGame(arcade.Window):
     def __init__(self) -> None:
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Клик для смены фото")
 
+        # Создаем UI менеджер
+        self.manager = arcade.gui.UIManager()
+        self.manager.enable()
+
         try:
+            # Загружаем все фото
             self.photo1 = arcade.load_texture(r"C:\Users\Алла\Downloads\кабинет с телом.jpg")
             self.photo2 = arcade.load_texture(r"C:\Users\Алла\Downloads\кабинет с ноутом.jpg")
             self.photo3 = arcade.load_texture(r"C:\Users\Алла\Downloads\рабочий стол_arcade.jpg")
             self.photo4 = arcade.load_texture(r"C:\Users\Алла\Downloads\+Белый+шка_измен.jpeg")
+            self.photo5 = arcade.load_texture(r"C:\Users\Алла\Downloads\Group 1 (1).png")
+
         except Exception as e:
             print(f"Ошибка загрузки изображения: {e}")
             arcade.exit()
 
-        self.current_photo = self.photo1
-        self.current_state = "photo1"
+        # Начинаем с пятого фото (стартового экрана)
+        self.current_photo = self.photo5
+        self.current_state = "start_screen"
+
+        # Создаем кнопку "Начать" для стартового экрана - В ЦЕНТРЕ
+        self.button = MyFlatButton(
+            text="Начать",
+            center_x=SCREEN_WIDTH // 2,  # Центр по горизонтали
+            center_y=SCREEN_HEIGHT // 2,  # Центр по вертикали
+            width=200,
+            height=40
+        )
+        self.manager.add(self.button)
 
         # Координаты для области кликанья Двери первая комната
         self.click_x_min1 = 150
@@ -58,21 +86,31 @@ class PhotoGame(arcade.Window):
 
     def on_draw(self) -> None:
         self.clear()
+
+        # Рисуем текущую фотографию
         arcade.draw_texture_rect(
             self.current_photo,
             arcade.XYWH(
-                SCREEN_WIDTH // 2,
-                SCREEN_HEIGHT // 2,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT
+                SCREEN_WIDTH // 2,  # x
+                SCREEN_HEIGHT // 2,  # y
+                SCREEN_WIDTH,  # ширина
+                SCREEN_HEIGHT  # высота
             )
         )
+
+        # Рисуем UI элементы (кнопку) только на стартовом экране
+        if self.current_state == "start_screen":
+            self.manager.draw()
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button != arcade.MOUSE_BUTTON_LEFT:
             return
 
-        if self.current_state == "photo1":
+        # Если мы на стартовом экране, обрабатываем только через UI менеджер
+        if self.current_state == "start_screen":
+            # UI менеджер сам обработает клик по кнопке
+            pass
+        elif self.current_state == "photo1":
             # Если на первой фото - дверь
             if (self.click_x_min1 <= x <= self.click_x_max1 and
                     self.click_y_min1 <= y <= self.click_y_max1):
