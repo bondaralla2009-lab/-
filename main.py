@@ -2,7 +2,7 @@ import arcade
 import arcade.gui
 
 SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_HEIGHT = 650
 
 
 class MyFlatButton(arcade.gui.UIFlatButton):
@@ -12,6 +12,7 @@ class MyFlatButton(arcade.gui.UIFlatButton):
         window.show_text = True
         window.current_text_index = 1
         arcade.set_background_color(arcade.color.BLACK)
+        window.start_music()
 
 
 class RulesButton(arcade.gui.UIFlatButton):
@@ -23,230 +24,339 @@ class RulesButton(arcade.gui.UIFlatButton):
 
 
 class ClickAreas:
-    """Координаты кликабельных областей"""
     def __init__(self):
-        # Дверь первая комната
-        self.door_photo1 = {
-            "x_min": 150, "x_max": 300,
-            "y_min": 200, "y_max": 400
-        }
-        # Обратно в первую комнату
-        self.back_to_photo1 = {
-            "x_min": 10, "x_max": 50,
-            "y_min": 0, "y_max": 1000
-        }
-        # На рабочий стол (из photo2 в photo3)
-        self.to_computer = {
-            "x_min": 80, "x_max": 290,
-            "y_min": 210, "y_max": 380
-        }
-        # Обратно из photo3 в photo2
-        self.back_from_computer = {
-            "x_min": 700, "x_max": 800,
-            "y_min": 0, "y_max": 100
-        }
-        # Шкаф первая комната
-        self.cabinet_photo1 = {
-            "x_min": 10, "x_max": 70,
-            "y_min": 270, "y_max": 430
-        }
-        # Возврат с фото4 на фото1
-        self.back_from_cabinet = {
-            "x_min": 700, "x_max": 800,
-            "y_min": 0, "y_max": 600
-        }
-        # Осмотр тела на photo1
-        self.examination_area = {
-            "x_min": 300, "x_max": 500,
-            "y_min": 200, "y_max": 400
-        }
-        # Отчет на photo3
-        self.report_area = {
-            "x_min": 160, "x_max": 200,
-            "y_min": 50, "y_max": 100
+        self.areas = {
+            "door_photo1": {"x_min": 150, "x_max": 300, "y_min": 200, "y_max": 400},
+            "back_to_photo1": {"x_min": 10, "x_max": 50, "y_min": 0, "y_max": 1000},
+            "to_computer": {"x_min": 80, "x_max": 290, "y_min": 210, "y_max": 380},
+            "back_from_computer": {"x_min": 700, "x_max": 800, "y_min": 0, "y_max": 100},
+            "cabinet_photo1": {"x_min": 10, "x_max": 70, "y_min": 270, "y_max": 430},
+            "back_from_cabinet": {"x_min": 700, "x_max": 800, "y_min": 0, "y_max": 600},
+            "examination_area": {"x_min": 300, "x_max": 500, "y_min": 200, "y_max": 400},
+            "report_area": {"x_min": 160, "x_max": 200, "y_min": 50, "y_max": 100},
+            "back_from_photo6": {"x_min": 700, "x_max": 800, "y_min": 0, "y_max": 100},
+            "door_photo2": {"x_min": 450, "x_max": 1000, "y_min": 0, "y_max": 700},
+            "door_info_folder": {"x_min": 20, "x_max": 80, "y_min": 50, "y_max": 100},
+            "photo9_to_photo7": {"x_min": 250, "x_max": 295, "y_min": 450, "y_max": 550},
+            "photo9_to_photo8": {"x_min": 300, "x_max": 350, "y_min": 450, "y_max": 550},
+            "photo8_to_photo1": {"x_min": 400, "x_max": 600, "y_min": 200, "y_max": 400},
+            "back_from_photo7": {"x_min": 700, "x_max": 800, "y_min": 0, "y_max": 100},
+            "back_from_photo8": {"x_min": 700, "x_max": 800, "y_min": 0, "y_max": 100},
+            "back_from_photo9": {"x_min": 700, "x_max": 800, "y_min": 0, "y_max": 100},
+            "phone_call_button": {"x_min": 400, "x_max": 600, "y_min": 300, "y_max": 375},
+            "safe_area_photo4": {"x_min": 300, "x_max": 500, "y_min": 200, "y_max": 400},
+            "center_photo3": {"x_min": 350, "x_max": 450, "y_min": 250, "y_max": 350},
+            "center_photo10": {"x_min": 350, "x_max": 450, "y_min": 250, "y_max": 350}
         }
 
     def is_in_area(self, x, y, area_name):
-        """Проверка, находится ли точка в указанной области"""
-        area = getattr(self, area_name, None)
-        if area:
-            return (area["x_min"] <= x <= area["x_max"] and
-                    area["y_min"] <= y <= area["y_max"])
-        return False
+        a = self.areas.get(area_name)
+        return a and a["x_min"] <= x <= a["x_max"] and a["y_min"] <= y <= a["y_max"]
 
 
 class PhotoManager:
-    """Менеджер загрузки и хранения фотографий"""
     def __init__(self):
         self.photos = {}
+        self.photos_replaced = False
         self.load_photos()
 
     def load_photos(self):
-        """Загрузка всех фотографий"""
         photo_files = {
             "photo1": "data/кабинет с телом1.jpg",
-            "photo2": "data/Комната с ноутом2.png",
+            "photo2": "data/Комната с компом2.png",
             "photo3": "data/рабочий стол_arcade3.jpg",
             "photo4": "data/+Белый+шка_измен4.jpeg",
             "photo5": "data/Group 1 (1)5.png",
-            "photo6": "data/Отчет6.png"
+            "photo6": "data/Отчет6.png",
+            "photo7": "data/Правила7.png",
+            "photo8": "data/Препараты8.png",
+            "photo9": "data/Важное9.png",
+            "photo10": "data/пароль10.jpg",
+            "photo11": "data/первая комната БЕЗ ТЕЛА11.png",
+            "photo12_1": "data/Галлюн1.png",
+            "photo12_2": "data/Галлюн12-2.png",
+            "photo13_1": "data/псих13-1.png",
+            "photo13_2": "data/псих13-2.png",
+            "photo14": "data/лес14.png",
+            "photo2_1": "data/комп красный2_1.png"
         }
-
         for key, filepath in photo_files.items():
             try:
                 self.photos[key] = arcade.load_texture(filepath)
             except Exception as e:
-                print(f"Ошибка загрузки изображения {filepath}: {e}")
-                arcade.exit()
+                print(f"Ошибка загрузки {filepath}: {e}")
+                self.photos[key] = arcade.Texture.create_empty(key, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    def replace_photos_after_black_screen(self):
+        if not self.photos_replaced:
+            self.original_photo1 = self.photos["photo1"]
+            self.original_photo2 = self.photos["photo2"]
+            self.photos["photo1"] = self.photos["photo12_1"]
+            self.photos_replaced = True
+
+    def show_photo2_1(self):
+        if "photo2_1" in self.photos:
+            self.photos["photo2"] = self.photos["photo2_1"]
 
 
 class GameTexts:
-    """Хранение всех текстов игры"""
     def __init__(self):
         self.texts = {
-            1: "Ммм да, мама была права, нужно было идти в универ,\n"
-               "щас бы работал в офисе... бумажки разгребал",
-            2: "Лааадно, Том, соберись, люди нуждаются в тебе,\n"
-               "кто если не ты будет копаться в телах людей.\n"
-               "Господь, я и правду занимаюсь чем-то не тем.",
-            3: "Хотя уже не важно, я слишком долго искал эту работу,\n"
-               "она мне и правда нужна.",
+            1: "Ммм да, мама была права, нужно было идти в универ,\nщас бы работал в офисе... бумажки разгребал",
+            2: "Лааадно, Том, соберись, люди нуждаются в тебе,\nкто если не ты будет копаться в телах людей.\nГосподь, я и правда занимаюсь чем-то не тем.",
+            3: "Хотя уже не важно, я слишком долго искал эту работу,\nона мне и правда нужна.",
             4: "Только таак хочется спать...",
             5: "Почему вообще первый рабочий день и сразу ночная смена??"
         }
-        self.photo2_texts = [
-            "М-м-м, как миленько здесь..",
-            "Мне обещали, что скоро придёт помощник.",
-            "Думаю с ним будет не так мрачно находится тут.",
-            "Хотя мне всегда было лучше одному.",
-            "Хах стационарный, серьезно??"
-        ]
-        self.phone_call_texts = [
-            "Ало? Кто это?",
-            "Здравствуй, Том, это Билл, твой начальник. Звоню, чтобы проинформировать о первом рабочем дне",
-            "Рядом с тобой (компьютер), там в папках всё, что тебе нужно: инфа про пациентов, препараты, документация, "
-            "отчеты, что тебу будет писать после каждой смены.",
-            "В папку (пароли) тебе лезть нечего..",
-            "Твой кабинет слева от тебя за белой дверью. С прошлой смены осталось одно не законченное тело, начни с него.",
-            "Нужно провести общий осмотр, да и в целом ты сам разберешься.",
-            "А-а, ладно, понял.",
-            "А что на счет помощника? Он опаздывает?",
-            "Что какой еще помощник? На эту смену (ты один).",
-            "Э-э ладно, мне пора.",
-            "Давай, работай."
-        ]
-        self.examination_texts = [
-            "Так ладно начнем...",
-            "Черт по привычке пульс мерею.",
-            "Чувствуя эту усталось, я бы не увидился такому",
-            "Ну вроде всё. Нужно записать это в отчет.",
-            "Чем раньше начну, тем раньше свалю уже отсюда."
-        ]
-        self.report_texts = [
-            "поздние трупные пятна в районе плеч.",
-            "Наблюдается общее вздутие.",
-            "Общих патологий не выявлено",
-            "Общий осмотр проведён."
-        ]
-        self.rules_text = (
-            "Хз допишу потом )) "
-
-        )
+        self.photo2_texts = ["М-м-м, как миленько здесь..", "Мне обещали, что скоро придёт помощник.",
+                             "Думаю с ним будет не так мрачно находится тут.", "Хотя мне всегда было лучше одному.",
+                             "...", "Хах стационарный, серьезно??"]
+        self.phone_call_texts = ["Ало? Кто это?",
+                                 "Здравствуй, Том, это Билл, твой начальник. Звоню, чтобы проинформировать о первом рабочем дне.",
+                                 "Рядом с тобой (компьютер), там в папках всё, что тебе нужно: инфа про пациентов, препараты, документация, отчёты, что тебе будет писать после каждой смены.",
+                                 "В папку (пароли) тебе лезть нечего..",
+                                 "Твой кабинет слева от тебя. С прошлой смены осталось одно не законченное тело, начни с него.",
+                                 "Нужно провести общий осмотр, да и в целом ты сам разберешься.", "А-а, ладно, понял.",
+                                 "А что насчёт помощника? Он опаздывает?",
+                                 "Что какой еще помощник? На эту смену (ты один).", "Э-э ладно, мне пора.",
+                                 "Давай, работай."]
+        self.examination_texts = ["Так ладно начнем...", "Чёрт по привычке пульс мерю.",
+                                  "Чувствуя эту усталость, я бы не удивился такому.",
+                                  "Ну вроде всё. Нужно записать это в отчет.",
+                                  "Чем раньше начну, тем раньше свалю уже отсюда."]
+        self.report_texts = ["Поздние трупные пятна в районе плеч.", "Общее вздутие не наблюдается.",
+                             "Общих патологий не выявлено.", "Общий осмотр проведён."]
+        self.monologue_after_black = ["Что это было??", "Смерти не боюсь, а темноты - да?",
+                                      "Мне кажется, я видел щиток на улице.", "Нужно его проверить.."]
+        self.door_locked_texts = ["Хаха смешная шутка. Не думал, что дверь автоматическая.", "И к чему ее ставить?",
+                                  "Чтоб пациенты не сбежали?",
+                                  "Может быть в папках есть инфа об этом?"]
+        self.door_info_texts = ["...", "А вот, дверь закрыта на время смены, для общей безопасности сотрудников.",
+                                "Чёрт, ну и чё это за правило.",
+                                "Бред какой-то...", "Ладно, такое бывает.", "Я и в похуже местах работал.",
+                                "Как только вспомню о том дне в мясокомбинате.",
+                                "Какой чёрт дернул меня это сделать.", "Так нужно посмотреть, что вводить.",
+                                "Иначе, я эту работу никогда не закончу."]
+        self.photo7_repeat_texts = ["Это уже было"]
+        self.photo8_texts = ["Хахах", "Предложить чай??", "Не слишком оригинально для такого места.", "Ммм",
+                             "Так нуу, вроде понял что брать."]
+        self.photo4_texts = ["Жесть от усталости в глазах плывёт.", "Так ну вроде бы это.", "Сейф??",
+                             "И для чего ты здесь?..", "Ну ладно, буду знать."]
+        self.photo1_after_black_texts = ["...", "М?", "Мне показалось или миг назад на столе никого не было.",
+                                         "Чёрт, Том, нужно высыпаться. А может даже согласиться с предложением Сьюзон, пойти к психотерапевту. Возможно хоть он поможет с галлюнами",
+                                         "А может и исчезновение тела, тоже было галлюном??.." "Как же я надеюсь на это."]
+        self.rules_text = "Добро пожаловать на смену. Работа патологоанатома — это покой и стабильность,\nпока ваш внутренний голос не начинает требовать антракта.\nГлавное правило: не спорьте с тем, кто держит скальпель, когда вы спите,\nиначе следующая запись в журнале вскрытия может оказаться вашей собственной.\nИ помните правила лишь в вашей голове. "
         self.after_call_text = "Ну просто сказка.."
+        self.body_after_seq_texts = ["Никаких трупных пятен, необычно ведь срок уже подошел.",
+                                     "Лицо правда у тебя знакомое.",
+                                     "К-х", "Как же сильно болит голова", "..."]
+        self.black_screen_texts = ["Где я??", "Ты там где должен быть.", "Что ты бл**ь такое?!",
+                                   "Хаха не догадываешься??", "Ты правда не помнишь меня?",
+                                   "Я даже как-то огорчен, что ты каждый раз забываешься меня. Ведь я единственный кто всегда был рядом с тобой.",
+                                   "Да, что ты такое?", "Я", "И есть", "Ты", "Тебе было одиноко и ты выдумал меня.",
+                                   "Хах кажется я всё таки чего-то надышался.",
+                                   "Слушай, ты, ну то есть я.", "Я тебя создал, я тебя и убью.",
+                                   "Хах смешной, ты говорил уже это однажды.",
+                                   "Но я по прежнему здесь", "Ц-ц это глупый кошмар.",
+                                   "А ты фальшивый, как и этот сон.", "Нуу это ведь только сон.?",
+                                   "...", "Так?", "Кх идиот, мы еще вернемся к этому разговору."]
+        self.final_texts = ["Хаха, что это было..", "Обещаю, что сегодня же пойду к психотерапевту и уволюсь.",
+                            "Но сначала нужно выбраться отсюда.",
+                            "Помню, Билл говорил про папку пароли, вроде бы, что делать мне там не чего..",
+                            "Но я считаю иначе."]
+        self.photo10_text = "Ага, вот и ты\nУдивлен, что не '1234'."
+        self.door_closed_final_texts = ["Дверь закрыта", "Что?", "Как она вообще может быть закрыта.",
+                                        "Нужно найти другой способ выйти.",
+                                        "Это глупо, ноо...", "Может быть попробовать через главный вход?",
+                                        "Полагаю, исчезновение тела было галлюцинацией, в этом случае мой выход за белой дверью."]
+        self.door_open_texts = ["Хахаах", "Свобода!", "Лишь бы это сейчас было реальным.", "Прошу."]
+        self.photo14_texts = ["...", "Фух", "Это был слишком реалистичный сон.", "Я ведь успел поверить..",
+                              "Ни за что больше не вернусь туда..", "Я не могу потерять это чувство свободы снова.",
+                              "А ты в этом уверен?))"]
+        self.photo13_1_texts = ["Сергей Борисович, мы ввели пациенту №116 двойную дозу а********и.",
+                                "Но должных улучшений не наблюдается.",
+                                "Всё хорошо, Людочка.", "Вводите тройную дозу.",
+                                "Мы достанем из него это грязное и лживое 'я'.", "Поняла, Сергей Борисович."]
+        self.photo13_2_texts = ["Ц-ц-ц", "Не бойся", "Это всего лишь сон.", "Но он повторится."]
+        self.red_texts = ["Ты там где должен быть.", "Хаха не догадываешься??", "Ты правда не помнишь меня?",
+                          "Я даже как-то огорчен, что ты каждый раз забываешься меня. Ведь я единственный кто всегда был рядом с тобой.",
+                          "Я", "И есть", "Ты", "Тебе было одиноко и ты выдумал меня.",
+                          "Хах смешной, ты говорил уже это однажды.",
+                          "Но я по прежнему здесь", "Кх идиот, мы еще вернемся к этому разговору.",
+                          "А ты в этом уверен?))", "Но он повторится."]
+        self.hurry_text = "Том, не тяни время, пора валить."
 
 
 class PhotoGame(arcade.Window):
     def __init__(self) -> None:
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Клик для смены фото")
-        # Инициализация менеджеров
         self.photo_manager = PhotoManager()
         self.click_areas = ClickAreas()
         self.texts = GameTexts()
-
-        # Инициализация UI
         self.manager = arcade.gui.UIManager()
         self.manager.enable()
 
-        # Инициализация состояния игры
         self.show_text = False
         self.current_text_index = 0
         self.text_finished = False
         self.show_rules = False
-
-        # Флаги для текстов на photo2
         self.show_photo2_text = False
         self.photo2_text_index = 0
         self.photo2_texts_finished = False
         self.photo2_texts_shown = False
-
-        # Флаги для цели и телефонного звонка
         self.show_goal = False
         self.goal_text = ""
         self.phone_call_available = False
         self.show_phone_call = False
         self.phone_call_index = 0
-
-        # Флаг для текста после звонка
         self.show_after_call_text = False
-
         self.show_examination = False
         self.examination_index = 0
         self.examination_finished = False
         self.examination_available = False
-
         self.report_available = False
         self.report_finished = False
         self.current_report_texts = []
+        self.show_black_screen = False
+        self.show_monologue_on_photo2 = False
+        self.monologue_index = 0
+        self.monologue_finished = False
+        self.came_from_photo6 = False
+        self.black_screen_shown = False
+        self.show_door_locked = False
+        self.door_locked_index = 0
+        self.door_locked_finished = False
+        self.door_checked = False
+        self.show_photo9 = False
+        self.show_photo7 = False
+        self.photo7_text_index = 0
+        self.photo7_texts_finished = False
+        self.photo7_visited = False
+        self.show_photo8 = False
+        self.photo8_text_index = 0
+        self.photo8_texts_finished = False
+        self.door_info_found = False
+        self.meds_info_found = False
+        self.photo4_text_index = 0
+        self.photo4_text_active = False
+        self.safe_checked = False
+        self.after_photo4_sequence_step = 0
+        self.photo1_after_seq_text_index = 0
+        self.photo1_after_seq_active = False
+        self.show_body_after_seq_text = False
+        self.body_after_seq_text_index = 0
+        self.body_after_seq_text_shown = False
+        self.show_photo12_sequence = False
+        self.photo12_step = 0
+        self.show_black_screen_dialogue = False
+        self.black_screen_dialogue_index = 0
+        self.show_final_sequence = False
+        self.final_text_index = 0
+        self.final_sequence_active = False
+        self.final_texts_completed = False
+        self.photo10_sequence_active = False
+        self.show_photo10_text = False
+        self.photo10_text_shown = False
+        self.show_door_closed_final = False
+        self.door_closed_final_index = 0
+        self.door_closed_final_active = False
+        self.show_door_open = False
+        self.door_open_sequence_active = False
+        self.door_open_text_index = 0
+        self.show_photo14 = False
+        self.photo14_text_index = 0
+        self.show_photo13_1 = False
+        self.photo13_1_text_index = 0
+        self.show_photo13_2 = False
+        self.photo13_2_text_index = 0
+        self.after_door_open_black = False
+        self.after_photo14_black = False
+        self.black_screen_dialogue_completed = False
+        self.photo2_1_shown = False
+        self.show_hurry_text = False
+        self.door_closed_final_completed = False
+        self.show_door_closed_title = False
+
+        self.music_player_1 = None
+        self.music_player_2 = None
+        self.current_music = None
+        self.music_1_playing = False
+        self.music_2_playing = False
 
         self.current_photo = self.photo_manager.photos["photo5"]
         self.current_state = "start_screen"
-
         self.setup_ui()
 
     def setup_ui(self):
-        """Настройка пользовательского интерфейса"""
-        # кнопка "Начать"
-        start_button = MyFlatButton(
-            text="Начать",
-            width=200,
-            height=40
-        )
-
-        # кнопка "Правила"
-        rules_button = RulesButton(
-            text="Правила",
-            width=200,
-            height=40
-        )
-
+        start_button = MyFlatButton(text="Начать", width=200, height=40)
+        rules_button = RulesButton(text="Правила", width=200, height=40)
         anchor_layout = arcade.gui.UIAnchorLayout()
-        # Добавляем кнопку "Начать" правее центра
-        anchor_layout.add(
-            child=start_button,
-            anchor_x="center_x",
-            anchor_y="center_y",
-            align_x=170,
-            align_y=20
-        )
-        # Добавляем кнопку "Правила" ПОД кнопкой "Начать"
-        anchor_layout.add(
-            child=rules_button,
-            anchor_x="center_x",
-            anchor_y="center_y",
-            align_x=170,
-            align_y=-30
-        )
-
+        anchor_layout.add(child=start_button, anchor_x="center_x", anchor_y="center_y", align_x=170, align_y=20)
+        anchor_layout.add(child=rules_button, anchor_x="center_x", anchor_y="center_y", align_x=170, align_y=-30)
         self.manager.add(anchor_layout)
+
+    def start_music(self):
+        try:
+            self.music_player_1 = arcade.Sound("data/mel_1.mp3")
+            self.current_music = self.music_player_1.play(volume=0.5, loop=True)
+            self.music_1_playing = True
+        except Exception as e:
+            print(f"Ошибка загрузки музыки: {e}")
+
+    def switch_to_music_2(self):
+        if self.music_1_playing and self.current_music:
+            self.current_music.stop()
+            self.music_1_playing = False
+        try:
+            self.music_player_2 = arcade.Sound("data/mel_2.mp3")
+            self.current_music = self.music_player_2.play(volume=0.5, loop=True)
+            self.music_2_playing = True
+        except Exception as e:
+            print(f"Ошибка загрузки музыки: {e}")
+
+    def stop_music(self):
+        if self.current_music:
+            self.current_music.stop()
+            self.current_music = None
+        self.music_1_playing = False
+        self.music_2_playing = False
 
     def on_draw(self) -> None:
         self.clear()
-        if self.show_rules:
+        if self.show_photo13_2:
+            self.draw_photo13_2()
+        elif self.show_photo13_1:
+            self.draw_photo13_1()
+        elif self.after_photo14_black:
+            arcade.set_background_color(arcade.color.BLACK)
+            self.clear()
+        elif self.show_photo14:
+            self.draw_photo14()
+        elif self.after_door_open_black:
+            arcade.set_background_color(arcade.color.BLACK)
+            self.clear()
+        elif self.show_door_open:
+            self.draw_door_open_message()
+        elif self.door_open_sequence_active:
+            self.draw_door_open_sequence()
+        elif self.show_rules:
             self.draw_rules_screen()
+        elif self.show_photo10_text:
+            self.draw_photo10_with_text()
+        elif self.final_sequence_active and self.final_text_index < len(self.texts.final_texts):
+            self.draw_final_text()
+        elif self.show_black_screen_dialogue:
+            self.draw_black_screen_dialogue()
+        elif self.photo12_step == 1 and not self.black_screen_dialogue_completed:
+            self.draw_photo12_1()
+        elif self.photo12_step == 2 and not self.black_screen_dialogue_completed:
+            self.draw_photo12_2()
+        elif self.show_body_after_seq_text and self.body_after_seq_text_index < len(self.texts.body_after_seq_texts):
+            self.draw_body_after_seq_text()
         elif self.show_text and not self.text_finished and self.current_text_index > 0:
             self.draw_main_text()
         elif self.show_phone_call and self.phone_call_index < len(self.texts.phone_call_texts):
-            self.draw_phone_call()
+            self.draw_phone_call_with_colors()
         elif self.show_after_call_text:
             self.draw_after_call()
         elif self.show_examination and self.examination_index < len(self.texts.examination_texts):
@@ -259,214 +369,453 @@ class PhotoGame(arcade.Window):
               not self.photo2_texts_finished and
               self.photo2_text_index < len(self.texts.photo2_texts)):
             self.draw_photo2_texts()
+        elif self.show_monologue_on_photo2 and self.monologue_index < len(self.texts.monologue_after_black):
+            self.draw_photo2_with_monologue()
+        elif self.show_door_closed_title:
+            self.draw_door_closed_title()
+        elif self.show_door_locked and self.door_locked_index < len(self.texts.door_locked_texts):
+            self.draw_door_locked()
+        elif self.show_photo7 and self.photo7_text_index < len(self.texts.door_info_texts):
+            self.draw_photo7()
+        elif self.show_photo8 and self.photo8_text_index < len(self.texts.photo8_texts):
+            self.draw_photo8()
+        elif self.show_photo9:
+            self.draw_photo9()
+        elif self.photo4_text_active and self.photo4_text_index < len(self.texts.photo4_texts):
+            self.draw_photo4_with_text()
+        elif self.after_photo4_sequence_step == 1:
+            arcade.set_background_color(arcade.color.BLACK)
+            self.clear()
+        elif self.after_photo4_sequence_step == 2:
+            arcade.draw_texture_rect(self.photo_manager.photos["photo11"],
+                                     arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        elif self.after_photo4_sequence_step == 3:
+            arcade.set_background_color(arcade.color.BLACK)
+            self.clear()
+        elif self.photo1_after_seq_active and self.photo1_after_seq_text_index < len(
+                self.texts.photo1_after_black_texts):
+            self.draw_photo1_with_text()
+        elif self.show_black_screen:
+            arcade.set_background_color(arcade.color.BLACK)
+            self.clear()
+        elif self.door_closed_final_active and self.door_closed_final_index < len(self.texts.door_closed_final_texts):
+            self.draw_door_closed_final()
+        elif self.current_state == "photo4" and not self.photo4_text_active:
+            arcade.draw_texture_rect(self.photo_manager.photos["photo4"],
+                                     arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
         else:
             self.draw_current_photo()
             if self.current_state == "start_screen":
                 self.manager.draw()
-        # Рисуем цель
+        if self.show_hurry_text:
+            self.draw_hurry_text()
         self.draw_goal()
 
-    def draw_rules_screen(self):
-        """Отрисовка экрана с правилами"""
+    def draw_door_closed_title(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo2"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        arcade.draw_text("Дверь закрыта", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.RED, 40,
+                         anchor_x="center", anchor_y="center", align="center", bold=True)
+
+    def draw_photo14(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo14"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        if self.photo14_text_index < len(self.texts.photo14_texts):
+            current_text = self.texts.photo14_texts[self.photo14_text_index]
+            text_color = arcade.color.RED if current_text in self.texts.red_texts else arcade.color.WHITE
+            arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, text_color, 24, anchor_x="center", anchor_y="center",
+                             align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_photo13_1(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo13_1"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        if self.photo13_1_text_index < len(self.texts.photo13_1_texts):
+            current_text = self.texts.photo13_1_texts[self.photo13_1_text_index]
+            arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
+                             anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_photo13_2(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo13_2"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        if self.photo13_2_text_index < len(self.texts.photo13_2_texts):
+            current_text = self.texts.photo13_2_texts[self.photo13_2_text_index]
+            if current_text:
+                text_color = arcade.color.RED if current_text in self.texts.red_texts else arcade.color.WHITE
+                arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, text_color, 24, anchor_x="center",
+                                 anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_door_open_message(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo2"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        arcade.draw_text("Дверь открыта", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.GREEN, 40,
+                         anchor_x="center", anchor_y="center", align="center", bold=True)
+
+    def draw_door_open_sequence(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo2"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        if self.door_open_text_index < len(self.texts.door_open_texts):
+            current_text = self.texts.door_open_texts[self.door_open_text_index]
+            arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 24, anchor_x="center",
+                             anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_door_closed_final(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo2"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        current_text = self.texts.door_closed_final_texts[self.door_closed_final_index]
+        if self.door_closed_final_index == 0:
+            arcade.draw_text(current_text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.RED, 30,
+                             anchor_x="center", anchor_y="center", align="center", bold=True)
+        else:
+            arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
+                             anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_photo12_1(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo12_1"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    def draw_photo12_2(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo12_2"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    def draw_black_screen_dialogue(self):
         arcade.set_background_color(arcade.color.BLACK)
-        arcade.draw_text(
-            self.texts.rules_text,
-            SCREEN_WIDTH // 2,
-            SCREEN_HEIGHT // 2,
-            arcade.color.WHITE,
-            18,
-            anchor_x="center",
-            anchor_y="center",
-            align="center",
-            width=SCREEN_WIDTH - 50,
-            multiline=True
-        )
-        arcade.draw_text(
-            "Нажмите для возврата...",
-            SCREEN_WIDTH // 2,
-            50,
-            arcade.color.LIGHT_GRAY,
-            14,
-            anchor_x="center"
-        )
+        self.clear()
+        if self.black_screen_dialogue_index < len(self.texts.black_screen_texts):
+            current_text = self.texts.black_screen_texts[self.black_screen_dialogue_index]
+            text_color = arcade.color.RED if current_text in self.texts.red_texts else arcade.color.WHITE
+            arcade.draw_text(current_text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, text_color, 20, anchor_x="center",
+                             anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_final_text(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo1"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        current_text = self.texts.final_texts[self.final_text_index]
+        arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
+                         anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_photo10_with_text(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo10"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        text_to_display = self.texts.photo10_text
+        if self.photo10_text_shown:
+            text_to_display += "\n\nНаконец-то я выберусь из этого кошмара."
+        arcade.draw_text(text_to_display, SCREEN_WIDTH // 2, 150, arcade.color.BLACK, 24, anchor_x="center",
+                         anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_body_after_seq_text(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo1"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        current_text = self.texts.body_after_seq_texts[self.body_after_seq_text_index]
+        arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
+                         anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_photo4_with_text(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo4"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        current_text = self.texts.photo4_texts[self.photo4_text_index]
+        arcade.draw_text(current_text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.WHITE, 22, anchor_x="center",
+                         anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_photo1_with_text(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo1"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        current_text = self.texts.photo1_after_black_texts[self.photo1_after_seq_text_index]
+        arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
+                         anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_phone_call_with_colors(self):
+        arcade.draw_texture_rect(self.current_photo,
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        call_text = self.texts.phone_call_texts[self.phone_call_index]
+        arcade.draw_text(call_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
+                         anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_rules_screen(self):
+        arcade.set_background_color(arcade.color.BLACK)
+        arcade.draw_text(self.texts.rules_text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.WHITE, 18,
+                         anchor_x="center", anchor_y="center", align="center", width=SCREEN_WIDTH - 50, multiline=True)
+        arcade.draw_text("Нажмите для возврата...", SCREEN_WIDTH // 2, 50, arcade.color.LIGHT_GRAY, 14,
+                         anchor_x="center")
 
     def draw_main_text(self):
-        """Отрисовка основного текста"""
         text = self.texts.texts.get(self.current_text_index, "")
-        arcade.draw_text(
-            text,
-            SCREEN_WIDTH // 2,
-            SCREEN_HEIGHT // 2,
-            arcade.color.WHITE,
-            20,
-            anchor_x="center",
-            anchor_y="center",
-            align="center",
-            width=SCREEN_WIDTH - 100,
-            multiline=True
-        )
-
-    def draw_phone_call(self):
-        """Отрисовка телефонного звонка"""
-        arcade.draw_texture_rect(
-            self.current_photo,
-            arcade.XYWH(
-                SCREEN_WIDTH // 2,
-                SCREEN_HEIGHT // 2,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT
-            )
-        )
-        call_text = self.texts.phone_call_texts[self.phone_call_index]
-        arcade.draw_text(
-            call_text,
-            SCREEN_WIDTH // 2,
-            SCREEN_HEIGHT // 2,
-            arcade.color.WHITE,
-            20,
-            anchor_x="center",
-            anchor_y="center",
-            align="center",
-            width=SCREEN_WIDTH - 150,
-            multiline=True
-        )
+        arcade.draw_text(text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.WHITE, 20, anchor_x="center",
+                         anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_after_call(self):
-        """Отрисовка текста после звонка"""
-        arcade.draw_texture_rect(
-            self.current_photo,
-            arcade.XYWH(
-                SCREEN_WIDTH // 2,
-                SCREEN_HEIGHT // 2,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT
-            )
-        )
-        arcade.draw_text(
-            self.texts.after_call_text,
-            SCREEN_WIDTH // 2,
-            100,
-            arcade.color.WHITE,
-            20,
-            anchor_x="center",
-            anchor_y="center",
-            align="center",
-            width=SCREEN_WIDTH - 100,
-            multiline=True
-        )
+        arcade.draw_texture_rect(self.current_photo,
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        arcade.draw_text(self.texts.after_call_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
+                         anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_examination(self):
-        """Отрисовка осмотра"""
-        arcade.draw_texture_rect(
-            self.current_photo,
-            arcade.XYWH(
-                SCREEN_WIDTH // 2,
-                SCREEN_HEIGHT // 2,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT
-            )
-        )
+        arcade.draw_texture_rect(self.current_photo,
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
         exam_text = self.texts.examination_texts[self.examination_index]
-        arcade.draw_text(
-            exam_text,
-            SCREEN_WIDTH // 2,
-            100,
-            arcade.color.WHITE,
-            20,
-            anchor_x="center",
-            anchor_y="center",
-            align="center",
-            width=SCREEN_WIDTH - 100,
-            multiline=True
-        )
+        arcade.draw_text(exam_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
+                         anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_report(self):
-        """Отрисовка отчета"""
-        arcade.draw_texture_rect(
-            self.photo_manager.photos["photo6"],
-            arcade.XYWH(
-                SCREEN_WIDTH // 2,
-                SCREEN_HEIGHT // 2,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT
-            )
-        )
+        arcade.draw_texture_rect(self.photo_manager.photos["photo6"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
         if self.current_report_texts:
-            start_y = SCREEN_HEIGHT - 150
+            start_y = SCREEN_HEIGHT - 400
             for i, text in enumerate(self.current_report_texts):
-                arcade.draw_text(
-                    text,
-                    100,
-                    start_y - (i * 30),
-                    arcade.color.BLACK,
-                    14,
-                    width=SCREEN_WIDTH - 200,
-                    multiline=True
-                )
+                arcade.draw_text(text, 200, start_y - (i * 45), arcade.color.BLACK, 18, width=SCREEN_WIDTH - 200,
+                                 multiline=True)
 
     def draw_photo2_texts(self):
-        """Отрисовка текстов на photo2"""
-        arcade.draw_texture_rect(
-            self.current_photo,
-            arcade.XYWH(
-                SCREEN_WIDTH // 2,
-                SCREEN_HEIGHT // 2,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT
-            )
-        )
+        arcade.draw_texture_rect(self.current_photo,
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
         current_text = self.texts.photo2_texts[self.photo2_text_index]
-        arcade.draw_text(
-            current_text,
-            SCREEN_WIDTH // 2,
-            100,
-            arcade.color.WHITE,
-            20,
-            anchor_x="center",
-            anchor_y="center",
-            align="center",
-            width=SCREEN_WIDTH - 100,
-            multiline=True
-        )
+        arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
+                         anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_photo2_with_monologue(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo2"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        monologue_text = self.texts.monologue_after_black[self.monologue_index]
+        arcade.draw_text(monologue_text, SCREEN_WIDTH // 2, 50, arcade.color.WHITE, 20, anchor_x="center",
+                         anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_door_locked(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo2"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        if self.door_locked_index < len(self.texts.door_locked_texts):
+            door_text = self.texts.door_locked_texts[self.door_locked_index]
+            arcade.draw_text(door_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
+                             anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_photo7(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo7"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        if self.photo7_visited:
+            text_list = self.texts.photo7_repeat_texts
+        else:
+            text_list = self.texts.door_info_texts
+        if self.photo7_text_index < len(text_list):
+            photo7_text = text_list[self.photo7_text_index]
+            arcade.draw_text(photo7_text, SCREEN_WIDTH // 2, 50, arcade.color.BLACK, 20, anchor_x="center",
+                             anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_photo8(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo8"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+        if self.photo8_text_index < len(self.texts.photo8_texts):
+            photo8_text = self.texts.photo8_texts[self.photo8_text_index]
+            arcade.draw_text(photo8_text, SCREEN_WIDTH // 2, 50, arcade.color.BLACK, 20, anchor_x="center",
+                             anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+
+    def draw_photo9(self):
+        arcade.draw_texture_rect(self.photo_manager.photos["photo9"],
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
 
     def draw_current_photo(self):
-        """Отрисовка текущей фотографии"""
-        arcade.draw_texture_rect(
-            self.current_photo,
-            arcade.XYWH(
-                SCREEN_WIDTH // 2,
-                SCREEN_HEIGHT // 2,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT
-            )
-        )
+        arcade.draw_texture_rect(self.current_photo,
+                                 arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    def draw_hurry_text(self):
+        arcade.draw_text(self.texts.hurry_text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.RED, 30,
+                         anchor_x="center", anchor_y="center", align="center", bold=True)
 
     def draw_goal(self):
-        """Отрисовка цели"""
-        if self.show_goal and self.current_state not in ["photo3", "report", "photo6"]:
-            arcade.draw_text(
-                "Цель:",
-                30,
-                SCREEN_HEIGHT - 50,
-                arcade.color.WHITE,
-                21,
-                bold=True
-            )
-            arcade.draw_text(
-                self.goal_text,
-                110,
-                SCREEN_HEIGHT - 50,
-                arcade.color.WHITE,
-                18
-            )
+        if (self.show_goal and not self.show_rules and not self.show_photo10_text and not self.final_sequence_active and
+                not self.show_black_screen_dialogue and not self.show_body_after_seq_text and not self.show_text and
+                not self.show_phone_call and not self.show_after_call_text and not self.show_examination and
+                self.current_state != "report" and self.current_state != "photo6" and not self.show_monologue_on_photo2 and
+                not self.show_door_closed_title and not self.show_door_locked and not self.show_photo7 and
+                not self.show_photo8 and not self.show_photo9 and not self.photo4_text_active and
+                self.after_photo4_sequence_step == 0 and not self.photo1_after_seq_active and self.photo12_step == 0 and
+                not self.show_black_screen and not self.door_closed_final_active and not self.show_door_open and
+                not self.door_open_sequence_active and not self.show_photo14 and not self.after_door_open_black and
+                not self.after_photo14_black and not self.show_photo13_1 and not self.show_photo13_2 and
+                not self.show_hurry_text):
+            arcade.draw_text("Цель:", 30, SCREEN_HEIGHT - 50, arcade.color.WHITE, 21, bold=True)
+            arcade.draw_text(self.goal_text, 110, SCREEN_HEIGHT - 50, arcade.color.WHITE, 18)
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button != arcade.MOUSE_BUTTON_LEFT:
             return
-
-        # Обработка кликов по экранам
-        if self.show_rules:
-            self.handle_rules_click()
+        if self.show_photo13_2:
+            if self.photo13_2_text_index < len(self.texts.photo13_2_texts) - 1:
+                self.photo13_2_text_index += 1
+            else:
+                self.show_photo13_2 = False
+                self.stop_music()
+                arcade.close_window()
+            return
+        if self.show_photo13_1:
+            if self.photo13_1_text_index < len(self.texts.photo13_1_texts) - 1:
+                self.photo13_1_text_index += 1
+            else:
+                self.show_photo13_1 = False
+                self.show_photo13_2 = True
+                self.photo13_2_text_index = 0
+            return
+        if self.after_photo14_black:
+            self.after_photo14_black = False
+            self.show_photo13_1 = True
+            self.photo13_1_text_index = 0
+            return
+        if self.show_photo14:
+            if self.photo14_text_index < len(self.texts.photo14_texts) - 1:
+                self.photo14_text_index += 1
+            else:
+                self.show_photo14 = False
+                self.after_photo14_black = True
+                arcade.set_background_color(arcade.color.BLACK)
+            return
+        if self.after_door_open_black:
+            self.after_door_open_black = False
+            self.show_photo14 = True
+            self.photo14_text_index = 0
+            return
+        if self.show_hurry_text:
+            self.show_hurry_text = False
+            if self.photo2_1_shown:
+                self.current_photo = self.photo_manager.photos["photo2"]
+            self.current_state = "photo2"
+            self.show_goal = True
+            self.goal_text = "Беги"
+            return
+        if self.show_door_closed_title:
+            self.show_door_closed_title = False
+            self.show_door_locked = True
+            self.door_locked_index = 0
+            return
+        if self.show_door_open:
+            self.show_door_open = False
+            self.door_open_sequence_active = True
+            self.door_open_text_index = 0
+            self.show_goal = False
+            return
+        if self.door_open_sequence_active:
+            if self.door_open_text_index < len(self.texts.door_open_texts) - 1:
+                self.door_open_text_index += 1
+            else:
+                self.door_open_sequence_active = False
+                self.after_door_open_black = True
+                arcade.set_background_color(arcade.color.BLACK)
+            return
+        if self.show_photo10_text:
+            if not self.photo10_text_shown:
+                self.photo10_text_shown = True
+            else:
+                self.show_photo10_text = False
+                self.current_photo = self.photo_manager.photos["photo2"]
+                self.current_state = "photo2"
+                self.show_goal = True
+                self.goal_text = "Беги"
+            return
+        if (self.current_state == "photo3" and
+                self.final_texts_completed and
+                self.goal_text == "Беги" and
+                self.click_areas.is_in_area(x, y, "center_photo3")):
+            self.current_photo = self.photo_manager.photos["photo10"]
+            self.current_state = "photo10"
+            self.show_photo10_text = True
+            self.photo10_text_shown = False
+            self.show_goal = False
+            return
+        if self.final_sequence_active:
+            if self.final_text_index < len(self.texts.final_texts) - 1:
+                self.final_text_index += 1
+            else:
+                self.final_sequence_active = False
+                self.final_texts_completed = True
+                self.show_goal = True
+                self.goal_text = "Беги"
+                self.current_state = "photo1"
+            return
+        if self.show_black_screen_dialogue:
+            if self.black_screen_dialogue_index < len(self.texts.black_screen_texts) - 1:
+                self.black_screen_dialogue_index += 1
+            else:
+                if not self.black_screen_dialogue_completed:
+                    self.photo_manager.replace_photos_after_black_screen()
+                    self.black_screen_dialogue_completed = True
+                self.show_black_screen_dialogue = False
+                self.current_photo = self.photo_manager.photos["photo1"]
+                self.current_state = "photo1"
+                self.final_sequence_active = True
+                self.final_text_index = 0
+                self.show_goal = False
+            return
+        if self.photo12_step == 1 and not self.black_screen_dialogue_completed:
+            self.photo12_step = 2
+            return
+        elif self.photo12_step == 2 and not self.black_screen_dialogue_completed:
+            self.photo12_step = 0
+            self.show_black_screen_dialogue = True
+            self.black_screen_dialogue_index = 0
+            arcade.set_background_color(arcade.color.BLACK)
+            return
+        if self.show_body_after_seq_text:
+            if self.body_after_seq_text_index < len(self.texts.body_after_seq_texts) - 1:
+                self.body_after_seq_text_index += 1
+            else:
+                if not self.music_2_playing:
+                    self.switch_to_music_2()
+                self.show_body_after_seq_text = False
+                self.body_after_seq_text_shown = True
+                if not self.black_screen_dialogue_completed:
+                    self.photo12_step = 1
+                    self.show_goal = False
+                    self.current_state = "photo12_sequence"
+                else:
+                    self.current_state = "photo1"
+                    self.final_sequence_active = True
+                    self.final_text_index = 0
+                    self.show_goal = False
+            return
+        if self.after_photo4_sequence_step == 1:
+            self.after_photo4_sequence_step = 2
+            return
+        elif self.after_photo4_sequence_step == 2:
+            self.after_photo4_sequence_step = 3
+            return
+        elif self.after_photo4_sequence_step == 3:
+            self.after_photo4_sequence_step = 0
+            self.photo1_after_seq_active = True
+            self.photo1_after_seq_text_index = 0
+            self.current_state = "photo1"
+            self.current_photo = self.photo_manager.photos["photo1"]
+            return
+        if self.show_black_screen:
+            self.handle_black_screen_click()
+            return
+        if self.photo1_after_seq_active:
+            if self.photo1_after_seq_text_index < len(self.texts.photo1_after_black_texts) - 1:
+                self.photo1_after_seq_text_index += 1
+            else:
+                self.photo1_after_seq_active = False
+                self.current_state = "photo1"
+                self.show_goal = True
+                self.goal_text = "Взять препарат и ввести в тело"
+            return
+        if self.door_closed_final_active:
+            if self.door_closed_final_index < len(self.texts.door_closed_final_texts) - 1:
+                self.door_closed_final_index += 1
+            else:
+                self.door_closed_final_active = False
+                self.door_closed_final_index = 0
+                self.door_closed_final_completed = True
+                self.show_goal = True
+                self.goal_text = "Беги"
+            return
+        if self.show_door_locked:
+            if self.door_locked_index < len(self.texts.door_locked_texts) - 1:
+                self.door_locked_index += 1
+            else:
+                self.show_door_locked = False
+                self.door_locked_finished = True
+                self.door_checked = True
+                self.goal_text = "Найти инфу про дверь"
+                self.show_goal = True
+            return
+        if self.show_rules and self.current_state == "start_screen":
+            self.show_rules = False
+            arcade.set_background_color(arcade.color.DEFAULT)
         elif self.show_text and not self.text_finished and self.current_text_index > 0:
             self.handle_main_text_click()
         elif self.show_phone_call:
@@ -476,91 +825,26 @@ class PhotoGame(arcade.Window):
         elif self.show_examination:
             self.handle_examination_click()
         elif self.current_state in ["report", "photo6"]:
-            self.handle_report_click()
+            self.handle_report_click(x, y)
         elif (self.current_state == "photo2" and
               not self.photo2_texts_shown and
               self.show_photo2_text and
               not self.photo2_texts_finished):
             self.handle_photo2_text_click()
+        elif self.show_monologue_on_photo2:
+            self.handle_monologue_click()
+        elif self.show_photo7:
+            self.handle_photo7_click(x, y)
+        elif self.show_photo8:
+            self.handle_photo8_click(x, y)
+        elif self.show_photo9:
+            self.handle_photo9_click(x, y)
+        elif self.photo4_text_active:
+            self.handle_photo4_text_click(x, y)
         else:
             self.handle_game_click(x, y)
 
-    def handle_rules_click(self):
-        """Обработка клика на правилах"""
-        self.show_rules = False
-        arcade.set_background_color(arcade.color.DEFAULT)
-
-    def handle_main_text_click(self):
-        """Обработка клика на основном тексте"""
-        if self.current_text_index < 5:
-            self.current_text_index += 1
-        else:
-            self.show_text = False
-            self.text_finished = True
-            self.current_text_index = 0
-            self.current_photo = self.photo_manager.photos["photo2"]
-            self.current_state = "photo2"
-
-            if not self.photo2_texts_shown:
-                self.show_photo2_text = True
-                self.photo2_text_index = 0
-                self.photo2_texts_finished = False
-
-            self.show_goal = True
-            self.goal_text = ""
-            arcade.set_background_color(arcade.color.DEFAULT)
-
-    def handle_phone_call_click(self):
-        """Обработка клика во время звонка"""
-        if self.phone_call_index < len(self.texts.phone_call_texts) - 1:
-            self.phone_call_index += 1
-        else:
-            self.show_phone_call = False
-            self.show_after_call_text = True
-            self.goal_text = "провести осмотр"
-
-    def handle_after_call_click(self):
-        """Обработка клика после звонка"""
-        self.show_after_call_text = False
-
-    def handle_examination_click(self):
-        """Обработка клика во время осмотра"""
-        if self.examination_index < len(self.texts.examination_texts) - 1:
-            self.examination_index += 1
-            print(f"Перешли к тексту осмотра: {self.examination_index + 1}")
-            if self.examination_index == 2:
-                self.show_goal = False
-                self.goal_text = ""
-            if self.examination_index == len(self.texts.examination_texts) - 1:
-                self.goal_text = "написать отчет об состоянии"
-                self.show_goal = True
-                self.report_available = True
-
-        else:
-            self.show_examination = False
-            self.examination_finished = True
-
-    def handle_report_click(self):
-        """Обработка клика на отчете"""
-        if len(self.current_report_texts) < len(self.texts.report_texts):
-            next_text = self.texts.report_texts[len(self.current_report_texts)]
-            self.current_report_texts.append(next_text)
-            if len(self.current_report_texts) == len(self.texts.report_texts):
-                self.report_finished = True
-
-    def handle_photo2_text_click(self):
-        """Обработка клика на текстах photo2"""
-        if self.photo2_text_index < len(self.texts.photo2_texts) - 1:
-            self.photo2_text_index += 1
-        else:
-            self.show_photo2_text = False
-            self.photo2_texts_finished = True
-            self.photo2_texts_shown = True
-            self.goal_text = "ответить на звонок"
-            self.phone_call_available = True
-
     def handle_game_click(self, x, y):
-        """Обработка кликов по игровым областям"""
         if self.current_state == "start_screen":
             pass
         elif self.current_state == "photo1":
@@ -572,29 +856,37 @@ class PhotoGame(arcade.Window):
         elif self.current_state == "photo4":
             self.handle_photo4_click(x, y)
 
-    def handle_photo1_click(self, x, y):
-        """Обработка кликов на photo1"""
-        if (self.examination_available and
-                self.click_areas.is_in_area(x, y, "examination_area")):
-            self.show_examination = True
-            self.examination_index = 0
-            self.examination_available = False
-        elif self.click_areas.is_in_area(x, y, "door_photo1"):
-            self.current_photo = self.photo_manager.photos["photo2"]
-            self.current_state = "photo2"
-
-            if not self.photo2_texts_shown:
-                self.show_photo2_text = True
-                self.photo2_text_index = 0
-                self.photo2_texts_finished = False
-
-            self.show_goal = True
-        elif self.click_areas.is_in_area(x, y, "cabinet_photo1"):
-            self.current_photo = self.photo_manager.photos["photo4"]
-            self.current_state = "photo4"
-
     def handle_photo2_click(self, x, y):
-        """Обработка кликов на photo2"""
+        if (self.current_state == "photo2" and
+                self.door_closed_final_completed and
+                self.click_areas.is_in_area(x, y, "back_to_photo1")):
+            self.show_hurry_text = True
+            self.show_goal = False
+            return
+        if (self.current_state == "photo2" and
+                self.final_texts_completed and
+                self.goal_text == "Беги" and
+                self.click_areas.is_in_area(x, y, "door_photo2")):
+            self.show_door_open = True
+            self.show_goal = False
+            return
+        if self.show_monologue_on_photo2:
+            return
+        if (self.final_texts_completed and
+                self.goal_text == "Беги" and
+                self.click_areas.is_in_area(x, y, "to_computer")):
+            self.current_photo = self.photo_manager.photos["photo3"]
+            self.current_state = "photo3"
+            self.show_goal = True
+            self.goal_text = "Беги"
+            return
+        if (self.final_texts_completed and
+                self.goal_text == "Беги" and
+                self.click_areas.is_in_area(x, y, "back_to_photo1")):
+            self.door_closed_final_active = True
+            self.door_closed_final_index = 0
+            self.show_goal = False
+            return
         if self.click_areas.is_in_area(x, y, "back_to_photo1"):
             if self.show_photo2_text and not self.photo2_texts_shown:
                 self.show_photo2_text = False
@@ -602,7 +894,6 @@ class PhotoGame(arcade.Window):
             else:
                 self.current_photo = self.photo_manager.photos["photo1"]
                 self.current_state = "photo1"
-
                 if self.goal_text == "провести осмотр":
                     self.examination_available = True
         elif self.click_areas.is_in_area(x, y, "to_computer"):
@@ -613,13 +904,244 @@ class PhotoGame(arcade.Window):
                 self.current_photo = self.photo_manager.photos["photo3"]
                 self.current_state = "photo3"
                 self.show_goal = False
-        elif self.phone_call_available:
-            self.show_phone_call = True
-            self.phone_call_index = 0
-            self.phone_call_available = False
+        elif self.click_areas.is_in_area(x, y, "door_photo2"):
+            if self.goal_text == "Проверить щиток" and not self.door_checked:
+                self.show_door_closed_title = True
+                self.show_goal = False
+                return
+        elif self.click_areas.is_in_area(x, y, "phone_call_button"):
+            if self.phone_call_available:
+                self.show_phone_call = True
+                self.phone_call_index = 0
+                self.phone_call_available = False
+
+    def handle_photo1_click(self, x, y):
+        if (self.black_screen_dialogue_completed and
+                self.click_areas.is_in_area(x, y, "door_photo1")):
+            if not self.photo2_1_shown:
+                self.photo_manager.show_photo2_1()
+                self.photo2_1_shown = True
+            self.current_photo = self.photo_manager.photos["photo2"]
+            self.current_state = "photo2"
+            if self.final_texts_completed:
+                self.show_goal = True
+                self.goal_text = "Беги"
+            else:
+                self.show_goal = True
+                self.goal_text = "Продолжить осмотр"
+            return
+        if (self.photo1_after_seq_active == False and
+                self.photo1_after_seq_text_index == len(self.texts.photo1_after_black_texts) - 1 and
+                self.goal_text == "Взять препарат и ввести в тело" and
+                self.click_areas.is_in_area(x, y, "examination_area") and
+                not self.body_after_seq_text_shown):
+            self.show_body_after_seq_text = True
+            self.body_after_seq_text_index = 0
+            return
+        if (self.final_texts_completed and
+                self.goal_text == "Беги" and
+                self.click_areas.is_in_area(x, y, "door_photo1")):
+            self.current_photo = self.photo_manager.photos["photo2"]
+            self.current_state = "photo2"
+            self.show_goal = True
+            self.goal_text = "Беги"
+            return
+        if (self.examination_available and
+                self.click_areas.is_in_area(x, y, "examination_area")):
+            self.show_examination = True
+            self.examination_index = 0
+            self.examination_available = False
+        elif self.click_areas.is_in_area(x, y, "door_photo1"):
+            self.current_photo = self.photo_manager.photos["photo2"]
+            self.current_state = "photo2"
+            if not self.photo2_texts_shown:
+                self.show_photo2_text = True
+                self.photo2_text_index = 0
+                self.photo2_texts_finished = False
+            if self.door_info_found:
+                self.goal_text = "найти инфу про препараты"
+            self.show_goal = True
+        elif self.click_areas.is_in_area(x, y, "cabinet_photo1"):
+            self.current_photo = self.photo_manager.photos["photo4"]
+            self.current_state = "photo4"
+
+    def handle_photo4_text_click(self, x, y):
+        if self.photo4_text_index < len(self.texts.photo4_texts) - 1:
+            self.photo4_text_index += 1
+        else:
+            self.photo4_text_active = False
+            self.after_photo4_sequence_step = 1
+
+    def handle_main_text_click(self):
+        if self.current_text_index < 5:
+            self.current_text_index += 1
+        else:
+            self.show_text = False
+            self.text_finished = True
+            self.current_text_index = 0
+            self.current_photo = self.photo_manager.photos["photo2"]
+            self.current_state = "photo2"
+            if not self.photo2_texts_shown:
+                self.show_photo2_text = True
+                self.photo2_text_index = 0
+                self.photo2_texts_finished = False
+            self.show_goal = True
+            self.goal_text = ""
+            arcade.set_background_color(arcade.color.DEFAULT)
+
+    def handle_phone_call_click(self):
+        if self.phone_call_index < len(self.texts.phone_call_texts) - 1:
+            self.phone_call_index += 1
+        else:
+            self.show_phone_call = False
+            self.show_after_call_text = True
+            self.goal_text = "провести осмотр"
+
+    def handle_after_call_click(self):
+        self.show_after_call_text = False
+
+    def handle_examination_click(self):
+        if self.examination_index < len(self.texts.examination_texts) - 1:
+            self.examination_index += 1
+            if self.examination_index == 2:
+                self.show_goal = False
+                self.goal_text = ""
+            if self.examination_index == len(self.texts.examination_texts) - 1:
+                self.goal_text = "написать отчет об состоянии"
+                self.show_goal = True
+                self.report_available = True
+        else:
+            self.show_examination = False
+            self.examination_finished = True
+
+    def handle_report_click(self, x, y):
+        if self.click_areas.is_in_area(x, y, "back_from_photo6"):
+            self.current_photo = self.photo_manager.photos["photo3"]
+            self.current_state = "photo3"
+            self.current_report_texts = []
+            self.report_finished = False
+            self.came_from_photo6 = True
+            return
+        if len(self.current_report_texts) < len(self.texts.report_texts):
+            next_text = self.texts.report_texts[len(self.current_report_texts)]
+            self.current_report_texts.append(next_text)
+            if len(self.current_report_texts) == len(self.texts.report_texts):
+                self.report_finished = True
+
+    def handle_photo2_text_click(self):
+        if self.photo2_text_index < len(self.texts.photo2_texts) - 1:
+            self.photo2_text_index += 1
+        else:
+            self.show_photo2_text = False
+            self.photo2_texts_finished = True
+            self.photo2_texts_shown = True
+            self.goal_text = "ответить на звонок"
+            self.phone_call_available = True
+
+    def handle_black_screen_click(self):
+        self.show_black_screen = False
+        self.black_screen_shown = True
+        self.current_photo = self.photo_manager.photos["photo2"]
+        self.current_state = "photo2"
+        self.show_monologue_on_photo2 = True
+        self.monologue_index = 0
+        self.monologue_finished = False
+        arcade.set_background_color(arcade.color.DEFAULT)
+
+    def handle_monologue_click(self):
+        if self.monologue_index < len(self.texts.monologue_after_black) - 1:
+            self.monologue_index += 1
+        else:
+            self.show_monologue_on_photo2 = False
+            self.monologue_finished = True
+            self.goal_text = "Проверить щиток"
+            self.show_goal = True
+
+    def handle_door_locked_click(self):
+        if self.door_locked_index < len(self.texts.door_locked_texts) - 1:
+            self.door_locked_index += 1
+        else:
+            self.show_door_locked = False
+            self.door_locked_finished = True
+            self.door_checked = True
+            self.goal_text = "Найти инфу про дверь"
+            self.show_goal = True
+
+    def handle_photo7_click(self, x, y):
+        if self.click_areas.is_in_area(x, y, "back_from_photo7"):
+            self.show_photo7 = False
+            self.photo7_visited = True
+            if self.photo7_text_index == len(self.texts.door_info_texts) - 1:
+                self.door_info_found = True
+                self.goal_text = "найти инфу про препараты"
+            self.current_photo = self.photo_manager.photos["photo9"]
+            self.current_state = "photo9"
+            self.show_photo9 = True
+            return
+        if self.photo7_visited:
+            text_list = self.texts.photo7_repeat_texts
+        else:
+            text_list = self.texts.door_info_texts
+        if self.photo7_text_index < len(text_list) - 1:
+            self.photo7_text_index += 1
+
+    def handle_photo8_click(self, x, y):
+        if self.click_areas.is_in_area(x, y, "back_from_photo8"):
+            self.show_photo8 = False
+            self.current_photo = self.photo_manager.photos["photo9"]
+            self.current_state = "photo9"
+            self.show_photo9 = True
+            return
+        if self.click_areas.is_in_area(x, y, "photo8_to_photo1"):
+            self.show_photo8 = False
+            self.current_photo = self.photo_manager.photos["photo1"]
+            self.current_state = "photo1"
+            self.show_goal = False
+            return
+        if self.photo8_text_index < len(self.texts.photo8_texts) - 1:
+            self.photo8_text_index += 1
+        else:
+            self.meds_info_found = True
+            self.goal_text = "Взять препарат и ввести в тело"
+            self.show_goal = True
+            self.show_photo8 = False
+            self.current_photo = self.photo_manager.photos["photo2"]
+            self.current_state = "photo2"
+
+    def handle_photo9_click(self, x, y):
+        if self.click_areas.is_in_area(x, y, "photo9_to_photo7"):
+            self.show_photo9 = False
+            self.current_photo = self.photo_manager.photos["photo7"]
+            self.current_state = "photo7"
+            self.show_photo7 = True
+            self.photo7_text_index = 0
+            return
+        if self.click_areas.is_in_area(x, y, "photo9_to_photo8"):
+            self.show_photo9 = False
+            self.current_photo = self.photo_manager.photos["photo8"]
+            self.current_state = "photo8"
+            self.show_photo8 = True
+            self.photo8_text_index = 0
+            self.show_goal = False
+            return
+        if self.click_areas.is_in_area(x, y, "back_from_photo9"):
+            self.show_photo9 = False
+            self.current_photo = self.photo_manager.photos["photo3"]
+            self.current_state = "photo3"
+            if self.door_info_found:
+                self.goal_text = "найти инфу про препараты"
+            self.show_goal = True
+            return
 
     def handle_photo3_click(self, x, y):
-        """Обработка кликов на photo3"""
+        if (self.goal_text == "Найти инфу про дверь" or
+                self.goal_text == "найти инфу про препараты"):
+            if self.click_areas.is_in_area(x, y, "door_info_folder"):
+                self.current_photo = self.photo_manager.photos["photo9"]
+                self.current_state = "photo9"
+                self.show_photo9 = True
+                self.show_goal = False
+                return
         if (self.report_available and
                 self.click_areas.is_in_area(x, y, "report_area")):
             self.current_photo = self.photo_manager.photos["photo6"]
@@ -629,14 +1151,26 @@ class PhotoGame(arcade.Window):
         elif self.click_areas.is_in_area(x, y, "back_from_computer"):
             self.current_photo = self.photo_manager.photos["photo2"]
             self.current_state = "photo2"
-            if self.goal_text:
-                self.show_goal = True
+            if self.came_from_photo6 and not self.black_screen_shown:
+                self.show_black_screen = True
+                arcade.set_background_color(arcade.color.BLACK)
+                self.show_goal = False
+                self.came_from_photo6 = False
+            else:
+                if self.goal_text:
+                    self.show_goal = True
 
     def handle_photo4_click(self, x, y):
-        """Обработка кликов на photo4"""
         if self.click_areas.is_in_area(x, y, "back_from_cabinet"):
             self.current_photo = self.photo_manager.photos["photo1"]
             self.current_state = "photo1"
+            if self.goal_text == "провести осмотр":
+                self.examination_available = True
+        elif self.click_areas.is_in_area(x, y, "safe_area_photo4"):
+            if not self.safe_checked:
+                self.photo4_text_active = True
+                self.photo4_text_index = 0
+                self.safe_checked = True
 
 
 if __name__ == "__main__":
