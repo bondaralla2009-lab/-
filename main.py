@@ -102,89 +102,91 @@ class PhotoManager:
 class GameTexts:
     def __init__(self):
         self.texts = {
-            1: "Ммм да, мама была права, нужно было идти в универ,\nщас бы работал в офисе... бумажки разгребал",
-            2: "Лааадно, Том, соберись, люди нуждаются в тебе,\nкто если не ты будет копаться в телах людей.\nГосподь, я и правда занимаюсь чем-то не тем.",
+            1: "Ммм, да, мама была права, нужно было идти в универ,\nсейчас бы работал в офисе... бумажки разгребал.",
+            2: "Лааадно, Том, соберись, люди нуждаются в тебе,\nкто, если не ты, будет копаться в телах людей.\nГосподь, я и правда занимаюсь чем-то не тем.",
             3: "Хотя уже не важно, я слишком долго искал эту работу,\nона мне и правда нужна.",
             4: "Только таак хочется спать...",
             5: "Почему вообще первый рабочий день и сразу ночная смена??"
         }
-        self.photo2_texts = ["М-м-м, как миленько здесь..", "Мне обещали, что скоро придёт помощник.",
-                             "Думаю с ним будет не так мрачно находится тут.", "Хотя мне всегда было лучше одному.",
-                             "...", "Хах стационарный, серьезно??"]
-        self.phone_call_texts = ["Ало? Кто это?",
-                                 "Здравствуй, Том, это Билл, твой начальник. Звоню, чтобы проинформировать о первом рабочем дне.",
-                                 "Рядом с тобой (компьютер), там в папках всё, что тебе нужно: инфа про пациентов, препараты, документация, отчёты, что тебе будет писать после каждой смены.",
-                                 "В папку (пароли) тебе лезть нечего..",
-                                 "Твой кабинет слева от тебя. С прошлой смены осталось одно не законченное тело, начни с него.",
-                                 "Нужно провести общий осмотр, да и в целом ты сам разберешься.", "А-а, ладно, понял.",
+        self.photo2_texts = ["М-м-м, как миленько здесь...", "Мне обещали, что скоро придёт помощник.",
+                             "Думаю, с ним будет не так мрачно находиться тут.", "Хотя мне всегда было лучше одному.",
+                             "...", "Хах, стационарный, серьёзно??"]
+        self.phone_call_texts = ["- Алло? Кто это?",
+                                 "- Здравствуй, Том, это Билл, твой начальник. Звоню, чтобы проинформировать о первом рабочем дне.",
+                                 "Рядом с тобой компьютер, там в папках всё, что тебе нужно: инфа про пациентов, препараты, документация, отчёты, что тебе будет писать после каждой смены.",
+                                 "В папку 'пароли' тебе лезть нечего...",
+                                 "Твой кабинет слева от тебя. С прошлой смены осталось одно незаконченное тело, начни с него.",
+                                 "Нужно провести общий осмотр, да и в целом ты сам разберёшься.", "- А-а, ладно, понял.",
                                  "А что насчёт помощника? Он опаздывает?",
-                                 "Что какой еще помощник? На эту смену (ты один).", "Э-э ладно, мне пора.",
+                                 "- Какой ещё помощник? На эту смену... ты один.", "Э-э, ладно, мне пора.",
                                  "Давай, работай."]
-        self.examination_texts = ["Так ладно начнем...", "Чёрт по привычке пульс мерю.",
+        self.examination_texts = ["Так, ладно, начнём...", "Чёрт, по привычке пульс мерю.",
                                   "Чувствуя эту усталость, я бы не удивился такому.",
-                                  "Ну вроде всё. Нужно записать это в отчет.",
+                                  "Ну, вроде всё. Нужно записать это в отчёт.",
                                   "Чем раньше начну, тем раньше свалю уже отсюда."]
         self.report_texts = ["Поздние трупные пятна в районе плеч.", "Общее вздутие не наблюдается.",
                              "Общих патологий не выявлено.", "Общий осмотр проведён."]
         self.monologue_after_black = ["Что это было??", "Смерти не боюсь, а темноты - да?",
-                                      "Мне кажется, я видел щиток на улице.", "Нужно его проверить.."]
-        self.door_locked_texts = ["Хаха смешная шутка. Не думал, что дверь автоматическая.", "И к чему ее ставить?",
+                                      "Мне кажется, я видел щиток на улице.", "Нужно его проверить..."]
+        self.door_locked_texts = ["Хаха, смешная шутка. Не думал, что дверь автоматическая.", "И к чему её ставить?",
                                   "Чтоб пациенты не сбежали?",
-                                  "Может быть в папках есть инфа об этом?"]
-        self.door_info_texts = ["...", "А вот, дверь закрыта на время смены, для общей безопасности сотрудников.",
-                                "Чёрт, ну и чё это за правило.",
+                                  "Может быть, в папках есть инфа об этом?"]
+        self.door_info_texts = ["...", "А вот, дверь закрыта на время смены для общей безопасности сотрудников.",
+                                "Чёрт, ну и что это за правило?",
                                 "Бред какой-то...", "Ладно, такое бывает.", "Я и в похуже местах работал.",
-                                "Как только вспомню о том дне в мясокомбинате.",
-                                "Какой чёрт дернул меня это сделать.", "Так нужно посмотреть, что вводить.",
-                                "Иначе, я эту работу никогда не закончу."]
+                                "Как только вспомню о том дне в мясокомбинате...",
+                                "Какой чёрт дёрнул меня это сделать.", "Так, нужно посмотреть, что вводить.",
+                                "Иначе я эту работу никогда не закончу."]
         self.photo7_repeat_texts = ["Это уже было"]
-        self.photo8_texts = ["Хахах", "Предложить чай??", "Не слишком оригинально для такого места.", "Ммм",
-                             "Так нуу, вроде понял что брать."]
-        self.photo4_texts = ["Жесть от усталости в глазах плывёт.", "Так ну вроде бы это.", "Сейф??",
+        self.photo8_texts = ["Хахах", "Предложить чай??", "Не слишком оригинально для такого места.", "Ммм...",
+                             "Так, нуу, вроде понял, что брать."]
+        self.photo4_texts = ["Жесть, от усталости в глазах плывёт.", "Так, ну, вроде бы это.", "Сейф??",
                              "И для чего ты здесь?..", "Ну ладно, буду знать."]
-        self.photo1_after_black_texts = ["...", "М?", "Мне показалось или миг назад на столе никого не было.",
-                                         "Чёрт, Том, нужно высыпаться. А может даже согласиться с предложением Сьюзон, пойти к психотерапевту. Возможно хоть он поможет с галлюнами",
-                                         "А может и исчезновение тела, тоже было галлюном??.." "Как же я надеюсь на это."]
-        self.rules_text = "Добро пожаловать на смену. Работа патологоанатома — это покой и стабильность,\nпока ваш внутренний голос не начинает требовать антракта.\nГлавное правило: не спорьте с тем, кто держит скальпель, когда вы спите,\nиначе следующая запись в журнале вскрытия может оказаться вашей собственной.\nИ помните правила лишь в вашей голове. "
-        self.after_call_text = "Ну просто сказка.."
-        self.body_after_seq_texts = ["Никаких трупных пятен, необычно ведь срок уже подошел.",
-                                     "Лицо правда у тебя знакомое.",
-                                     "К-х", "Как же сильно болит голова", "..."]
-        self.black_screen_texts = ["Где я??", "Ты там где должен быть.", "Что ты бл**ь такое?!",
-                                   "Хаха не догадываешься??", "Ты правда не помнишь меня?",
-                                   "Я даже как-то огорчен, что ты каждый раз забываешься меня. Ведь я единственный кто всегда был рядом с тобой.",
-                                   "Да, что ты такое?", "Я", "И есть", "Ты", "Тебе было одиноко и ты выдумал меня.",
-                                   "Хах кажется я всё таки чего-то надышался.",
+        self.photo1_after_black_texts = ["...", "М?", "Мне показалось или мгновение назад на столе никого не было.",
+                                         "Чёрт, Том, нужно высыпаться. А может даже согласиться с предложением Сьюзан, пойти к психотерапевту. Возможно, хоть он поможет с галлюцинациями.",
+                                         "А может, и исчезновение тела тоже было галлюцинацией??.. Как же я надеюсь на это."]
+        self.rules_text = "Добро пожаловать на смену. Работа патологоанатома — это покой и стабильность,\nпока ваш внутренний голос не начинает требовать антракта.\nГлавное правило: не спорьте с тем, кто держит скальпель, когда вы спите,\nиначе следующая запись в журнале вскрытия может оказаться вашей собственной.\nИ помните: правила лишь в вашей голове."
+        self.after_call_text = "Ну просто сказка..."
+        self.body_after_seq_texts = ["Никаких трупных пятен, необычно, ведь срок уже подошёл.",
+                                     "Лицо, правда, у тебя знакомое.",
+                                     "К-х", "Как же сильно болит голова...", "..."]
+        self.black_screen_texts = ["Где я??", "Ты там, где должен быть.", "Что ты, бл**ь, такое?!",
+                                   "Хаха, не догадываешься??", "Ты правда не помнишь меня?",
+                                   "Я даже как-то огорчён, что ты каждый раз забываешь меня. Ведь я единственный, кто всегда был рядом с тобой.",
+                                   "Да, что ты такое?", "Я", "И есть", "Ты", "Тебе было одиноко, и ты выдумал меня.",
+                                   "Хах, кажется, я всё-таки чего-то надышался.",
                                    "Слушай, ты, ну то есть я.", "Я тебя создал, я тебя и убью.",
-                                   "Хах смешной, ты говорил уже это однажды.",
-                                   "Но я по прежнему здесь", "Ц-ц это глупый кошмар.",
-                                   "А ты фальшивый, как и этот сон.", "Нуу это ведь только сон.?",
-                                   "...", "Так?", "Кх идиот, мы еще вернемся к этому разговору."]
-        self.final_texts = ["Хаха, что это было..", "Обещаю, что сегодня же пойду к психотерапевту и уволюсь.",
+                                   "Хах, смешной, ты говорил уже это однажды.",
+                                   "Но я по-прежнему здесь.", "Ц-ц, это глупый кошмар.",
+                                   "А ты фальшивый, как и этот сон.", "Нуу, это ведь только сон.?",
+                                   "...", "Так?", "Кх, идиот, мы ещё вернёмся к этому разговору."]
+        self.final_texts = ["Хаха, что это было...", "Обещаю, что сегодня же пойду к психотерапевту и уволюсь.",
                             "Но сначала нужно выбраться отсюда.",
-                            "Помню, Билл говорил про папку пароли, вроде бы, что делать мне там не чего..",
+                            "Помню, Билл говорил про папку 'пароли', вроде бы, что делать мне там нечего...",
                             "Но я считаю иначе."]
-        self.photo10_text = "Ага, вот и ты\nУдивлен, что не '1234'."
-        self.door_closed_final_texts = ["Дверь закрыта", "Что?", "Как она вообще может быть закрыта.",
+        self.photo10_text = "Ага, вот и ты.\nУдивлён, что не '1234'?"
+        self.door_closed_final_texts = ["Дверь закрыта", "Что?", "Как она вообще может быть закрыта?",
                                         "Нужно найти другой способ выйти.",
-                                        "Это глупо, ноо...", "Может быть попробовать через главный вход?",
+                                        "Это глупо, ноо...", "Может быть, попробовать через главный вход?",
                                         "Полагаю, исчезновение тела было галлюцинацией, в этом случае мой выход за белой дверью."]
-        self.door_open_texts = ["Хахаах", "Свобода!", "Лишь бы это сейчас было реальным.", "Прошу."]
-        self.photo14_texts = ["...", "Фух", "Это был слишком реалистичный сон.", "Я ведь успел поверить..",
-                              "Ни за что больше не вернусь туда..", "Я не могу потерять это чувство свободы снова.",
+        self.door_open_texts = ["Хахаах", "Свобода!", "Лишь бы это сейчас было реальным.", "Прошу..."]
+        self.photo14_texts = ["...", "Фух", "Это был слишком реалистичный сон.", "Я ведь успел поверить...",
+                              "Ни за что больше не вернусь туда...", "Я не могу потерять это чувство свободы снова.",
                               "А ты в этом уверен?))"]
         self.photo13_1_texts = ["Сергей Борисович, мы ввели пациенту №116 двойную дозу а********и.",
                                 "Но должных улучшений не наблюдается.",
                                 "Всё хорошо, Людочка.", "Вводите тройную дозу.",
                                 "Мы достанем из него это грязное и лживое 'я'.", "Поняла, Сергей Борисович."]
         self.photo13_2_texts = ["Ц-ц-ц", "Не бойся", "Это всего лишь сон.", "Но он повторится."]
-        self.red_texts = ["Ты там где должен быть.", "Хаха не догадываешься??", "Ты правда не помнишь меня?",
-                          "Я даже как-то огорчен, что ты каждый раз забываешься меня. Ведь я единственный кто всегда был рядом с тобой.",
-                          "Я", "И есть", "Ты", "Тебе было одиноко и ты выдумал меня.",
-                          "Хах смешной, ты говорил уже это однажды.",
-                          "Но я по прежнему здесь", "Кх идиот, мы еще вернемся к этому разговору.",
+        self.red_texts = ["Ты там, где должен быть.", "Хаха, не догадываешься??", "Ты правда не помнишь меня?",
+                          "Я даже как-то огорчён, что ты каждый раз забываешь меня. Ведь я единственный, кто всегда был рядом с тобой.",
+                          "Я", "И есть", "Ты", "Тебе было одиноко, и ты выдумал меня.",
+                          "Хах, смешной, ты говорил уже это однажды.",
+                          "Но я по-прежнему здесь.", "Кх, идиот, мы ещё вернёмся к этому разговору.",
                           "А ты в этом уверен?))", "Но он повторится."]
         self.hurry_text = "Том, не тяни время, пора валить."
+        # Новый финальный текст
+        self.final_end_text = "Увы, сны снятся не только ночью."
 
 
 class PhotoGame(arcade.Window):
@@ -195,6 +197,10 @@ class PhotoGame(arcade.Window):
         self.texts = GameTexts()
         self.manager = arcade.gui.UIManager()
         self.manager.enable()
+        self.music_player_1 = arcade.Sound("data/mel_1.mp3")
+        self.music_player_2 = arcade.Sound("data/mel_2.mp3")
+        self.music_player = None
+        self.current_music_playing = None  # Текущая играющая музыка
 
         self.show_text = False
         self.current_text_index = 0
@@ -276,12 +282,8 @@ class PhotoGame(arcade.Window):
         self.show_hurry_text = False
         self.door_closed_final_completed = False
         self.show_door_closed_title = False
-
-        self.music_player_1 = None
-        self.music_player_2 = None
-        self.current_music = None
-        self.music_1_playing = False
-        self.music_2_playing = False
+        # Новый флаг для финального черного экрана
+        self.show_final_black_screen = False
 
         self.current_photo = self.photo_manager.photos["photo5"]
         self.current_state = "start_screen"
@@ -296,34 +298,37 @@ class PhotoGame(arcade.Window):
         self.manager.add(anchor_layout)
 
     def start_music(self):
-        try:
-            self.music_player_1 = arcade.Sound("data/mel_1.mp3")
-            self.current_music = self.music_player_1.play(volume=0.5, loop=True)
-            self.music_1_playing = True
-        except Exception as e:
-            print(f"Ошибка загрузки музыки: {e}")
+        if self.music_player:
+            self.stop_music()
+        self.music_player = arcade.play_sound(self.music_player_1, volume=0.5)
+        self.current_music_playing = "music_1"
 
     def switch_to_music_2(self):
-        if self.music_1_playing and self.current_music:
-            self.current_music.stop()
-            self.music_1_playing = False
-        try:
-            self.music_player_2 = arcade.Sound("data/mel_2.mp3")
-            self.current_music = self.music_player_2.play(volume=0.5, loop=True)
-            self.music_2_playing = True
-        except Exception as e:
-            print(f"Ошибка загрузки музыки: {e}")
+        if self.music_player:
+            self.stop_music()
+        self.music_player = arcade.play_sound(self.music_player_2, volume=0.5)
+        self.current_music_playing = "music_2"
 
     def stop_music(self):
-        if self.current_music:
-            self.current_music.stop()
-            self.current_music = None
-        self.music_1_playing = False
-        self.music_2_playing = False
+        if self.music_player:
+            arcade.stop_sound(self.music_player)
+            self.music_player = None
+            self.current_music_playing = None
 
     def on_draw(self) -> None:
         self.clear()
-        if self.show_photo13_2:
+        if self.show_final_black_screen:
+            arcade.set_background_color(arcade.color.BLACK)
+            self.clear()
+            arcade.draw_text(self.texts.final_end_text,
+                             SCREEN_WIDTH // 2,
+                             SCREEN_HEIGHT // 2,
+                             arcade.color.RED,
+                             20,
+                             anchor_x="center",
+                             anchor_y="center",
+                             align="center")
+        elif self.show_photo13_2:
             self.draw_photo13_2()
         elif self.show_photo13_1:
             self.draw_photo13_1()
@@ -527,8 +532,11 @@ class PhotoGame(arcade.Window):
         arcade.draw_texture_rect(self.current_photo,
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
         call_text = self.texts.phone_call_texts[self.phone_call_index]
-        arcade.draw_text(call_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
-                         anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
+        text_x = SCREEN_WIDTH // 2
+        text_y = SCREEN_HEIGHT // 2
+        arcade.draw_text(call_text, text_x, text_y, arcade.color.WHITE, 20,
+                         anchor_x="center", anchor_y="center",
+                         align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_rules_screen(self):
         arcade.set_background_color(arcade.color.BLACK)
@@ -629,21 +637,31 @@ class PhotoGame(arcade.Window):
                 not self.show_black_screen and not self.door_closed_final_active and not self.show_door_open and
                 not self.door_open_sequence_active and not self.show_photo14 and not self.after_door_open_black and
                 not self.after_photo14_black and not self.show_photo13_1 and not self.show_photo13_2 and
-                not self.show_hurry_text):
+                not self.show_hurry_text and not self.show_final_black_screen):  # Добавили проверку на финальный экран
             arcade.draw_text("Цель:", 30, SCREEN_HEIGHT - 50, arcade.color.WHITE, 21, bold=True)
             arcade.draw_text(self.goal_text, 110, SCREEN_HEIGHT - 50, arcade.color.WHITE, 18)
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button != arcade.MOUSE_BUTTON_LEFT:
             return
+
+        # Обработка финального черного экрана
+        if self.show_final_black_screen:
+            # Закрываем окно при клике на финальном экране
+            arcade.close_window()
+            return
+
         if self.show_photo13_2:
             if self.photo13_2_text_index < len(self.texts.photo13_2_texts) - 1:
                 self.photo13_2_text_index += 1
             else:
+                # После завершения текстов photo13_2_texts показываем финальный черный экран
                 self.show_photo13_2 = False
                 self.stop_music()
-                arcade.close_window()
+                self.show_final_black_screen = True
+                arcade.set_background_color(arcade.color.BLACK)
             return
+
         if self.show_photo13_1:
             if self.photo13_1_text_index < len(self.texts.photo13_1_texts) - 1:
                 self.photo13_1_text_index += 1
@@ -754,7 +772,8 @@ class PhotoGame(arcade.Window):
             if self.body_after_seq_text_index < len(self.texts.body_after_seq_texts) - 1:
                 self.body_after_seq_text_index += 1
             else:
-                if not self.music_2_playing:
+                # Переключаем музыку на вторую после завершения текстов
+                if self.current_music_playing != "music_2":
                     self.switch_to_music_2()
                 self.show_body_after_seq_text = False
                 self.body_after_seq_text_shown = True
@@ -788,6 +807,9 @@ class PhotoGame(arcade.Window):
             if self.photo1_after_seq_text_index < len(self.texts.photo1_after_black_texts) - 1:
                 self.photo1_after_seq_text_index += 1
             else:
+                # ПОСЛЕ ЗАВЕРШЕНИЯ photo1_after_black_texts ПЕРЕКЛЮЧАЕМ МУЗЫКУ
+                if self.current_music_playing == "music_1":
+                    self.switch_to_music_2()
                 self.photo1_after_seq_active = False
                 self.current_state = "photo1"
                 self.show_goal = True
