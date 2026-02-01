@@ -277,16 +277,15 @@ class GoalRenderer:
 class PhotoGame(arcade.Window):
     def __init__(self) -> None:
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Me")
-        self._photo_manager: PhotoManager = PhotoManager()
-        self._click_areas: ClickAreas = ClickAreas()
-        self._texts: GameTexts = GameTexts()
+        self.photo_manager: PhotoManager = PhotoManager()
+        self.click_areas: ClickAreas = ClickAreas()
+        self.texts: GameTexts = GameTexts()
         self._manager: arcade.gui.UIManager = arcade.gui.UIManager()
         self._manager.enable()
-        self._music_player_1: arcade.Sound = arcade.Sound("data/mel_1.mp3")
-        self._music_player_2: arcade.Sound = arcade.Sound("data/mel_2.mp3")
+        self.music_player_1: arcade.Sound = arcade.Sound("data/mel_1.mp3")
+        self.music_player_2: arcade.Sound = arcade.Sound("data/mel_2.mp3")
         self._music_player = None
-        self._current_music_playing = None  # Текущая играющая музыка
-        self._active: bool = True
+        self._current_music_playing = None
 
         self._show_text: bool = False
         self._current_text_index: int = 0
@@ -368,16 +367,17 @@ class PhotoGame(arcade.Window):
         self._show_hurry_text: bool = False
         self._door_closed_final_completed: bool = False
         self._show_door_closed_title: bool = False
-        # Новый флаг для финального черного экрана
         self._show_final_black_screen: bool = False
-        # Флаги для отслеживания состояний
-        self._photo8_visited: bool = False  # Был ли фото8 посещен
-        self._photo6_visited: bool = False  # Был ли фото6 посещен
+        self._photo8_visited: bool = False
+        self._photo6_visited: bool = False
         self._door_closed_final_texts_completed: bool = False
-        self._current_photo = self._photo_manager._photos["photo5"]
+
+        self.current_photo = self.photo_manager._photos["photo5"]
         self._current_state: str = "start_screen"
-        self._rules_renderer: RulesScreenRenderer = RulesScreenRenderer(self._texts)
+
+        self._rules_renderer: RulesScreenRenderer = RulesScreenRenderer(self.texts)
         self._goal_renderer: GoalRenderer = GoalRenderer(self)
+
         self.setup_ui()
 
     def disable_menu_ui(self) -> None:
@@ -395,13 +395,13 @@ class PhotoGame(arcade.Window):
     def start_music(self) -> None:
         if self._music_player:
             self.stop_music()
-        self._music_player = arcade.play_sound(self._music_player_1, volume=0.5)
+        self._music_player = arcade.play_sound(self.music_player_1, volume=0.5)
         self._current_music_playing = "music_1"
 
     def switch_to_music_2(self) -> None:
         if self._music_player:
             self.stop_music()
-        self._music_player = arcade.play_sound(self._music_player_2, volume=0.5)
+        self._music_player = arcade.play_sound(self.music_player_2, volume=0.5)
         self._current_music_playing = "music_2"
 
     def stop_music(self) -> None:
@@ -415,7 +415,7 @@ class PhotoGame(arcade.Window):
         if self._show_final_black_screen:
             arcade.set_background_color(arcade.color.BLACK)
             self.clear()
-            arcade.draw_text(self._texts.final_end_text,
+            arcade.draw_text(self.texts.final_end_text,
                              SCREEN_WIDTH // 2,
                              SCREEN_HEIGHT // 2,
                              arcade.color.RED,
@@ -440,10 +440,10 @@ class PhotoGame(arcade.Window):
         elif self._door_open_sequence_active:
             self.draw_door_open_sequence()
         elif self._show_rules:
-            self._rules_renderer.draw()  # Используем класс RulesScreenRenderer
+            self._rules_renderer.draw()
         elif self._show_photo10_text:
             self.draw_photo10_with_text()
-        elif self._final_sequence_active and self._final_text_index < len(self._texts.final_texts):
+        elif self._final_sequence_active and self._final_text_index < len(self.texts.final_texts):
             self.draw_final_text()
         elif self._show_black_screen_dialogue:
             self.draw_black_screen_dialogue()
@@ -451,57 +451,57 @@ class PhotoGame(arcade.Window):
             self.draw_photo12_1()
         elif self._photo12_step == 2 and not self._black_screen_dialogue_completed:
             self.draw_photo12_2()
-        elif self._show_body_after_seq_text and self._body_after_seq_text_index < len(self._texts.body_after_seq_texts):
+        elif self._show_body_after_seq_text and self._body_after_seq_text_index < len(self.texts.body_after_seq_texts):
             self.draw_body_after_seq_text()
         elif self._show_text and not self._text_finished and self._current_text_index > 0:
             self.draw_main_text()
-        elif self._show_phone_call and self._phone_call_index < len(self._texts.phone_call_texts):
+        elif self._show_phone_call and self._phone_call_index < len(self.texts.phone_call_texts):
             self.draw_phone_call_with_colors()
         elif self._show_after_call_text:
             self.draw_after_call()
-        elif self._show_examination and self._examination_index < len(self._texts.examination_texts):
+        elif self._show_examination and self._examination_index < len(self.texts.examination_texts):
             self.draw_examination()
-        elif self._current_state == "report" or self._current_state == "photo6":
+        elif self._current_state in ["report", "photo6"]:
             self.draw_report()
         elif (self._current_state == "photo2" and
               not self._photo2_texts_shown and
               self._show_photo2_text and
               not self._photo2_texts_finished and
-              self._photo2_text_index < len(self._texts.photo2_texts)):
+              self._photo2_text_index < len(self.texts.photo2_texts)):
             self.draw_photo2_texts()
-        elif self._show_monologue_on_photo2 and self._monologue_index < len(self._texts.monologue_after_black):
+        elif self._show_monologue_on_photo2 and self._monologue_index < len(self.texts.monologue_after_black):
             self.draw_photo2_with_monologue()
         elif self._show_door_closed_title:
             self.draw_door_closed_title()
-        elif self._show_door_locked and self._door_locked_index < len(self._texts.door_locked_texts):
+        elif self._show_door_locked and self._door_locked_index < len(self.texts.door_locked_texts):
             self.draw_door_locked()
-        elif self._show_photo7 and self._photo7_text_index < len(self._texts.door_info_texts):
+        elif self._show_photo7 and self._photo7_text_index < len(self.texts.door_info_texts):
             self.draw_photo7()
         elif self._show_photo8:
             self.draw_photo8()
         elif self._show_photo9:
             self.draw_photo9()
-        elif self._photo4_text_active and self._photo4_text_index < len(self._texts.photo4_texts):
+        elif self._photo4_text_active and self._photo4_text_index < len(self.texts.photo4_texts):
             self.draw_photo4_with_text()
         elif self._after_photo4_sequence_step == 1:
             arcade.set_background_color(arcade.color.BLACK)
             self.clear()
         elif self._after_photo4_sequence_step == 2:
-            arcade.draw_texture_rect(self._photo_manager._photos["photo11"],
+            arcade.draw_texture_rect(self.photo_manager._photos["photo11"],
                                      arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
         elif self._after_photo4_sequence_step == 3:
             arcade.set_background_color(arcade.color.BLACK)
             self.clear()
         elif self._photo1_after_seq_active and self._photo1_after_seq_text_index < len(
-                self._texts.photo1_after_black_texts):
+                self.texts.photo1_after_black_texts):
             self.draw_photo1_with_text()
         elif self._show_black_screen:
             arcade.set_background_color(arcade.color.BLACK)
             self.clear()
-        elif self._door_closed_final_active and self._door_closed_final_index < len(self._texts.door_closed_final_texts):
+        elif self._door_closed_final_active and self._door_closed_final_index < len(self.texts.door_closed_final_texts):
             self.draw_door_closed_final()
         elif self._current_state == "photo4" and not self._photo4_text_active:
-            arcade.draw_texture_rect(self._photo_manager._photos["photo4"],
+            arcade.draw_texture_rect(self.photo_manager._photos["photo4"],
                                      arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
         else:
             self.draw_current_photo()
@@ -513,34 +513,30 @@ class PhotoGame(arcade.Window):
         self._goal_renderer.draw()
 
     def draw_photo8(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo8"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo8"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
 
-
-        if self._photo8_visited: # Определяем, какой текст показывать
-            # повторное посещение
-            if self._photo8_text_index < len(self._texts.photo8_repeat_texts):
-                photo8_text: str = self._texts.photo8_repeat_texts[self._photo8_text_index]
+        if self._photo8_visited:
+            if self._photo8_text_index < len(self.texts.photo8_repeat_texts):
+                photo8_text: str = self.texts.photo8_repeat_texts[self._photo8_text_index]
                 arcade.draw_text(photo8_text, SCREEN_WIDTH // 2, 50, arcade.color.BLACK, 20, anchor_x="center",
                                  anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
         else:
-            # Если первый раз, показываем обычный текст
-            if self._photo8_text_index < len(self._texts.photo8_texts):
-                photo8_text: str = self._texts.photo8_texts[self._photo8_text_index]
+            if self._photo8_text_index < len(self.texts.photo8_texts):
+                photo8_text: str = self.texts.photo8_texts[self._photo8_text_index]
                 arcade.draw_text(photo8_text, SCREEN_WIDTH // 2, 50, arcade.color.BLACK, 20, anchor_x="center",
                                  anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_report(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo6"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo6"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
 
         if self._photo6_visited:
             start_y: int = SCREEN_HEIGHT - 400
-            for i, text in enumerate(self._texts.report_texts):
+            for i, text in enumerate(self.texts.report_texts):
                 arcade.draw_text(text, 200, start_y - (i * 45), arcade.color.BLACK, 18, width=SCREEN_WIDTH - 200,
                                  multiline=True)
         else:
-            # Иначе показываем постепенно
             if self._current_report_texts:
                 start_y: int = SCREEN_HEIGHT - 400
                 for i, text in enumerate(self._current_report_texts):
@@ -548,56 +544,56 @@ class PhotoGame(arcade.Window):
                                      multiline=True)
 
     def draw_door_closed_title(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo2"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo2"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
         arcade.draw_text("Дверь закрыта", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.RED, 40,
                          anchor_x="center", anchor_y="center", align="center", bold=True)
 
     def draw_photo14(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo14"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo14"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        if self._photo14_text_index < len(self._texts.photo14_texts):
-            current_text: str = self._texts.photo14_texts[self._photo14_text_index]
-            text_color = arcade.color.RED if current_text in self._texts.red_texts else arcade.color.WHITE
+        if self._photo14_text_index < len(self.texts.photo14_texts):
+            current_text: str = self.texts.photo14_texts[self._photo14_text_index]
+            text_color = arcade.color.RED if current_text in self.texts.red_texts else arcade.color.WHITE
             arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, text_color, 24, anchor_x="center", anchor_y="center",
                              align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_photo13_1(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo13_1"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo13_1"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        if self._photo13_1_text_index < len(self._texts.photo13_1_texts):
-            current_text: str = self._texts.photo13_1_texts[self._photo13_1_text_index]
+        if self._photo13_1_text_index < len(self.texts.photo13_1_texts):
+            current_text: str = self.texts.photo13_1_texts[self._photo13_1_text_index]
             arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
                              anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_photo13_2(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo13_2"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo13_2"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        if self._photo13_2_text_index < len(self._texts.photo13_2_texts):
-            current_text: str = self._texts.photo13_2_texts[self._photo13_2_text_index]
+        if self._photo13_2_text_index < len(self.texts.photo13_2_texts):
+            current_text: str = self.texts.photo13_2_texts[self._photo13_2_text_index]
             if current_text:
-                text_color = arcade.color.RED if current_text in self._texts.red_texts else arcade.color.WHITE
+                text_color = arcade.color.RED if current_text in self.texts.red_texts else arcade.color.WHITE
                 arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, text_color, 24, anchor_x="center",
                                  anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_door_open_message(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo2"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo2"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
         arcade.draw_text("Дверь открыта", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.GREEN, 40,
                          anchor_x="center", anchor_y="center", align="center", bold=True)
 
     def draw_door_open_sequence(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo2"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo2"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        if self._door_open_text_index < len(self._texts.door_open_texts):
-            current_text: str = self._texts.door_open_texts[self._door_open_text_index]
+        if self._door_open_text_index < len(self.texts.door_open_texts):
+            current_text: str = self.texts.door_open_texts[self._door_open_text_index]
             arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 24, anchor_x="center",
                              anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_door_closed_final(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo2"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo2"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        current_text: str = self._texts.door_closed_final_texts[self._door_closed_final_index]
+        current_text: str = self.texts.door_closed_final_texts[self._door_closed_final_index]
         if self._door_closed_final_index == 0:
             arcade.draw_text(current_text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.RED, 30,
                              anchor_x="center", anchor_y="center", align="center", bold=True)
@@ -606,63 +602,63 @@ class PhotoGame(arcade.Window):
                              anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_photo12_1(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo12_1"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo12_1"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
 
     def draw_photo12_2(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo12_2"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo12_2"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
 
     def draw_black_screen_dialogue(self) -> None:
         arcade.set_background_color(arcade.color.BLACK)
         self.clear()
-        if self._black_screen_dialogue_index < len(self._texts.black_screen_texts):
-            current_text: str = self._texts.black_screen_texts[self._black_screen_dialogue_index]
-            text_color = arcade.color.RED if current_text in self._texts.red_texts else arcade.color.WHITE
+        if self._black_screen_dialogue_index < len(self.texts.black_screen_texts):
+            current_text: str = self.texts.black_screen_texts[self._black_screen_dialogue_index]
+            text_color = arcade.color.RED if current_text in self.texts.red_texts else arcade.color.WHITE
             arcade.draw_text(current_text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, text_color, 20, anchor_x="center",
                              anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_final_text(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo1"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo1"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        current_text: str = self._texts.final_texts[self._final_text_index]
+        current_text: str = self.texts.final_texts[self._final_text_index]
         arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
                          anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_photo10_with_text(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo10"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo10"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        text_to_display: str = self._texts.photo10_text
+        text_to_display: str = self.texts.photo10_text
         if self._photo10_text_shown:
             text_to_display += "\n\nНаконец-то я выберусь из этого кошмара."
         arcade.draw_text(text_to_display, SCREEN_WIDTH // 2, 150, arcade.color.BLACK, 24, anchor_x="center",
                          anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_body_after_seq_text(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo1"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo1"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        current_text: str = self._texts.body_after_seq_texts[self._body_after_seq_text_index]
+        current_text: str = self.texts.body_after_seq_texts[self._body_after_seq_text_index]
         arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
                          anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_photo4_with_text(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo4"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo4"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        current_text: str = self._texts.photo4_texts[self._photo4_text_index]
+        current_text: str = self.texts.photo4_texts[self._photo4_text_index]
         arcade.draw_text(current_text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.WHITE, 22, anchor_x="center",
                          anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_photo1_with_text(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo1"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo1"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        current_text: str = self._texts.photo1_after_black_texts[self._photo1_after_seq_text_index]
+        current_text: str = self.texts.photo1_after_black_texts[self._photo1_after_seq_text_index]
         arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
                          anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_phone_call_with_colors(self) -> None:
-        arcade.draw_texture_rect(self._current_photo,
+        arcade.draw_texture_rect(self.current_photo,
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        call_text: str = self._texts.phone_call_texts[self._phone_call_index]
+        call_text: str = self.texts.phone_call_texts[self._phone_call_index]
         text_x: int = SCREEN_WIDTH // 2
         text_y: int = SCREEN_HEIGHT // 2
         arcade.draw_text(call_text, text_x, text_y, arcade.color.WHITE, 20,
@@ -670,67 +666,67 @@ class PhotoGame(arcade.Window):
                          align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_main_text(self) -> None:
-        text: str = self._texts.texts.get(self._current_text_index, "")
+        text: str = self.texts.texts.get(self._current_text_index, "")
         arcade.draw_text(text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.WHITE, 20, anchor_x="center",
                          anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_after_call(self) -> None:
-        arcade.draw_texture_rect(self._current_photo,
+        arcade.draw_texture_rect(self.current_photo,
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        arcade.draw_text(self._texts.after_call_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
+        arcade.draw_text(self.texts.after_call_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
                          anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_examination(self) -> None:
-        arcade.draw_texture_rect(self._current_photo,
+        arcade.draw_texture_rect(self.current_photo,
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        exam_text: str = self._texts.examination_texts[self._examination_index]
+        exam_text: str = self.texts.examination_texts[self._examination_index]
         arcade.draw_text(exam_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
                          anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_photo2_texts(self) -> None:
-        arcade.draw_texture_rect(self._current_photo,
+        arcade.draw_texture_rect(self.current_photo,
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        current_text: str = self._texts.photo2_texts[self._photo2_text_index]
+        current_text: str = self.texts.photo2_texts[self._photo2_text_index]
         arcade.draw_text(current_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
                          anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_photo2_with_monologue(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo2"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo2"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        monologue_text: str = self._texts.monologue_after_black[self._monologue_index]
+        monologue_text: str = self.texts.monologue_after_black[self._monologue_index]
         arcade.draw_text(monologue_text, SCREEN_WIDTH // 2, 50, arcade.color.WHITE, 20, anchor_x="center",
                          anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_door_locked(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo2"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo2"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
-        if self._door_locked_index < len(self._texts.door_locked_texts):
-            door_text: str = self._texts.door_locked_texts[self._door_locked_index]
+        if self._door_locked_index < len(self.texts.door_locked_texts):
+            door_text: str = self.texts.door_locked_texts[self._door_locked_index]
             arcade.draw_text(door_text, SCREEN_WIDTH // 2, 100, arcade.color.WHITE, 20, anchor_x="center",
                              anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_photo7(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo7"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo7"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
         if self._photo7_visited:
-            text_list: list = self._texts.photo7_repeat_texts
+            text_list: list = self.texts.photo7_repeat_texts
         else:
-            text_list: list = self._texts.door_info_texts
+            text_list: list = self.texts.door_info_texts
         if self._photo7_text_index < len(text_list):
             photo7_text: str = text_list[self._photo7_text_index]
             arcade.draw_text(photo7_text, SCREEN_WIDTH // 2, 50, arcade.color.BLACK, 20, anchor_x="center",
                              anchor_y="center", align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
     def draw_photo9(self) -> None:
-        arcade.draw_texture_rect(self._photo_manager._photos["photo9"],
+        arcade.draw_texture_rect(self.photo_manager._photos["photo9"],
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
 
     def draw_current_photo(self) -> None:
-        arcade.draw_texture_rect(self._current_photo,
+        arcade.draw_texture_rect(self.current_photo,
                                  arcade.XYWH(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, SCREEN_WIDTH, SCREEN_HEIGHT))
 
     def draw_hurry_text(self) -> None:
-        arcade.draw_text(self._texts.hurry_text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.RED, 30,
+        arcade.draw_text(self.texts.hurry_text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.RED, 30,
                          anchor_x="center", anchor_y="center", align="center", bold=True)
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
@@ -743,10 +739,9 @@ class PhotoGame(arcade.Window):
             return
 
         if self._show_photo13_2:
-            if self._photo13_2_text_index < len(self._texts.photo13_2_texts) - 1:
+            if self._photo13_2_text_index < len(self.texts.photo13_2_texts) - 1:
                 self._photo13_2_text_index += 1
             else:
-                # После завершения текстов photo13_2_texts показываем финальный черный экран
                 self._show_photo13_2 = False
                 self.stop_music()
                 self._show_final_black_screen = True
@@ -754,7 +749,7 @@ class PhotoGame(arcade.Window):
             return
 
         if self._show_photo13_1:
-            if self._photo13_1_text_index < len(self._texts.photo13_1_texts) - 1:
+            if self._photo13_1_text_index < len(self.texts.photo13_1_texts) - 1:
                 self._photo13_1_text_index += 1
             else:
                 self._show_photo13_1 = False
@@ -767,7 +762,7 @@ class PhotoGame(arcade.Window):
             self._photo13_1_text_index = 0
             return
         if self._show_photo14:
-            if self._photo14_text_index < len(self._texts.photo14_texts) - 1:
+            if self._photo14_text_index < len(self.texts.photo14_texts) - 1:
                 self._photo14_text_index += 1
             else:
                 self._show_photo14 = False
@@ -782,7 +777,7 @@ class PhotoGame(arcade.Window):
         if self._show_hurry_text:
             self._show_hurry_text = False
             if self._photo2_1_shown:
-                self._current_photo = self._photo_manager._photos["photo2"]
+                self.current_photo = self.photo_manager._photos["photo2"]
             self._current_state = "photo2"
             self._show_goal = True
             self._goal_text = "Беги"
@@ -799,7 +794,7 @@ class PhotoGame(arcade.Window):
             self._show_goal = False
             return
         if self._door_open_sequence_active:
-            if self._door_open_text_index < len(self._texts.door_open_texts) - 1:
+            if self._door_open_text_index < len(self.texts.door_open_texts) - 1:
                 self._door_open_text_index += 1
             else:
                 self._door_open_sequence_active = False
@@ -811,7 +806,7 @@ class PhotoGame(arcade.Window):
                 self._photo10_text_shown = True
             else:
                 self._show_photo10_text = False
-                self._current_photo = self._photo_manager._photos["photo2"]
+                self.current_photo = self.photo_manager._photos["photo2"]
                 self._current_state = "photo2"
                 self._show_goal = True
                 self._goal_text = "Беги"
@@ -819,15 +814,15 @@ class PhotoGame(arcade.Window):
         if (self._current_state == "photo3" and
                 self._final_texts_completed and
                 self._goal_text == "Беги" and
-                self._click_areas.is_in_area(x, y, "center_photo3")):
-            self._current_photo = self._photo_manager._photos["photo10"]
+                self.click_areas.is_in_area(x, y, "center_photo3")):
+            self.current_photo = self.photo_manager._photos["photo10"]
             self._current_state = "photo10"
             self._show_photo10_text = True
             self._photo10_text_shown = False
             self._show_goal = False
             return
         if self._final_sequence_active:
-            if self._final_text_index < len(self._texts.final_texts) - 1:
+            if self._final_text_index < len(self.texts.final_texts) - 1:
                 self._final_text_index += 1
             else:
                 self._final_sequence_active = False
@@ -837,14 +832,14 @@ class PhotoGame(arcade.Window):
                 self._current_state = "photo1"
             return
         if self._show_black_screen_dialogue:
-            if self._black_screen_dialogue_index < len(self._texts.black_screen_texts) - 1:
+            if self._black_screen_dialogue_index < len(self.texts.black_screen_texts) - 1:
                 self._black_screen_dialogue_index += 1
             else:
                 if not self._black_screen_dialogue_completed:
-                    self._photo_manager.replace_photos_after_black_screen()
+                    self.photo_manager.replace_photos_after_black_screen()
                     self._black_screen_dialogue_completed = True
                 self._show_black_screen_dialogue = False
-                self._current_photo = self._photo_manager._photos["photo1"]
+                self.current_photo = self.photo_manager._photos["photo1"]
                 self._current_state = "photo1"
                 self._final_sequence_active = True
                 self._final_text_index = 0
@@ -860,7 +855,7 @@ class PhotoGame(arcade.Window):
             arcade.set_background_color(arcade.color.BLACK)
             return
         if self._show_body_after_seq_text:
-            if self._body_after_seq_text_index < len(self._texts.body_after_seq_texts) - 1:
+            if self._body_after_seq_text_index < len(self.texts.body_after_seq_texts) - 1:
                 self._body_after_seq_text_index += 1
             else:
                 if self._current_music_playing != "music_2":
@@ -888,13 +883,13 @@ class PhotoGame(arcade.Window):
             self._photo1_after_seq_active = True
             self._photo1_after_seq_text_index = 0
             self._current_state = "photo1"
-            self._current_photo = self._photo_manager._photos["photo1"]
+            self.current_photo = self.photo_manager._photos["photo1"]
             return
         if self._show_black_screen:
             self.handle_black_screen_click()
             return
         if self._photo1_after_seq_active:
-            if self._photo1_after_seq_text_index < len(self._texts.photo1_after_black_texts) - 1:
+            if self._photo1_after_seq_text_index < len(self.texts.photo1_after_black_texts) - 1:
                 self._photo1_after_seq_text_index += 1
             else:
                 if self._current_music_playing == "music_1":
@@ -905,7 +900,7 @@ class PhotoGame(arcade.Window):
                 self._goal_text = "Взять препарат и ввести в тело"
             return
         if self._door_closed_final_active:
-            if self._door_closed_final_index < len(self._texts.door_closed_final_texts) - 1:
+            if self._door_closed_final_index < len(self.texts.door_closed_final_texts) - 1:
                 self._door_closed_final_index += 1
             else:
                 self._door_closed_final_active = False
@@ -916,7 +911,7 @@ class PhotoGame(arcade.Window):
                 self._goal_text = "Беги"
             return
         if self._show_door_locked:
-            if self._door_locked_index < len(self._texts.door_locked_texts) - 1:
+            if self._door_locked_index < len(self.texts.door_locked_texts) - 1:
                 self._door_locked_index += 1
             else:
                 self._show_door_locked = False
@@ -971,14 +966,14 @@ class PhotoGame(arcade.Window):
     def handle_photo2_click(self, x: float, y: float) -> None:
         if (self._current_state == "photo2" and
                 self._door_closed_final_completed and
-                self._click_areas.is_in_area(x, y, "back_to_photo1")):
+                self.click_areas.is_in_area(x, y, "back_to_photo1")):
             self._show_hurry_text = True
             self._show_goal = False
             return
         if (self._current_state == "photo2" and
                 self._final_texts_completed and
                 self._goal_text == "Беги" and
-                self._click_areas.is_in_area(x, y, "door_photo2")):
+                self.click_areas.is_in_area(x, y, "door_photo2")):
             if self._door_closed_final_texts_completed:
                 self._show_door_open = True
                 self._show_goal = False
@@ -987,43 +982,43 @@ class PhotoGame(arcade.Window):
             return
         if (self._final_texts_completed and
                 self._goal_text == "Беги" and
-                self._click_areas.is_in_area(x, y, "to_computer")):
-            self._current_photo = self._photo_manager._photos["photo3"]
+                self.click_areas.is_in_area(x, y, "to_computer")):
+            self.current_photo = self.photo_manager._photos["photo3"]
             self._current_state = "photo3"
             self._show_goal = True
             self._goal_text = "Беги"
             return
         if (self._final_texts_completed and
                 self._goal_text == "Беги" and
-                self._click_areas.is_in_area(x, y, "back_to_photo1")):
+                self.click_areas.is_in_area(x, y, "back_to_photo1")):
             if not self._door_closed_final_texts_completed:
                 self._door_closed_final_active = True
                 self._door_closed_final_index = 0
                 self._show_goal = False
             return
-        if self._click_areas.is_in_area(x, y, "back_to_photo1"):
+        if self.click_areas.is_in_area(x, y, "back_to_photo1"):
             if self._show_photo2_text and not self._photo2_texts_shown:
                 self._show_photo2_text = False
                 self._photo2_texts_finished = True
             else:
-                self._current_photo = self._photo_manager._photos["photo1"]
+                self.current_photo = self.photo_manager._photos["photo1"]
                 self._current_state = "photo1"
                 if self._goal_text == "провести осмотр":
                     self._examination_available = True
-        elif self._click_areas.is_in_area(x, y, "to_computer"):
+        elif self.click_areas.is_in_area(x, y, "to_computer"):
             if self._show_photo2_text and not self._photo2_texts_shown:
                 self._show_photo2_text = False
                 self._photo2_texts_finished = True
             else:
-                self._current_photo = self._photo_manager._photos["photo3"]
+                self.current_photo = self.photo_manager._photos["photo3"]
                 self._current_state = "photo3"
                 self._show_goal = False
-        elif self._click_areas.is_in_area(x, y, "door_photo2"):
+        elif self.click_areas.is_in_area(x, y, "door_photo2"):
             if self._goal_text == "Проверить щиток" and not self._door_checked:
                 self._show_door_closed_title = True
                 self._show_goal = False
                 return
-        elif self._click_areas.is_in_area(x, y, "phone_call_button"):
+        elif self.click_areas.is_in_area(x, y, "phone_call_button"):
             if self._phone_call_available:
                 self._show_phone_call = True
                 self._phone_call_index = 0
@@ -1031,11 +1026,11 @@ class PhotoGame(arcade.Window):
 
     def handle_photo1_click(self, x: float, y: float) -> None:
         if (self._black_screen_dialogue_completed and
-                self._click_areas.is_in_area(x, y, "door_photo1")):
+                self.click_areas.is_in_area(x, y, "door_photo1")):
             if not self._photo2_1_shown:
-                self._photo_manager.show_photo2_1()
+                self.photo_manager.show_photo2_1()
                 self._photo2_1_shown = True
-            self._current_photo = self._photo_manager._photos["photo2"]
+            self.current_photo = self.photo_manager._photos["photo2"]
             self._current_state = "photo2"
             if self._final_texts_completed:
                 self._show_goal = True
@@ -1045,28 +1040,28 @@ class PhotoGame(arcade.Window):
                 self._goal_text = "Продолжить осмотр"
             return
         if (self._photo1_after_seq_active == False and
-                self._photo1_after_seq_text_index == len(self._texts.photo1_after_black_texts) - 1 and
+                self._photo1_after_seq_text_index == len(self.texts.photo1_after_black_texts) - 1 and
                 self._goal_text == "Взять препарат и ввести в тело" and
-                self._click_areas.is_in_area(x, y, "examination_area") and
+                self.click_areas.is_in_area(x, y, "examination_area") and
                 not self._body_after_seq_text_shown):
             self._show_body_after_seq_text = True
             self._body_after_seq_text_index = 0
             return
         if (self._final_texts_completed and
                 self._goal_text == "Беги" and
-                self._click_areas.is_in_area(x, y, "door_photo1")):
-            self._current_photo = self._photo_manager._photos["photo2"]
+                self.click_areas.is_in_area(x, y, "door_photo1")):
+            self.current_photo = self.photo_manager._photos["photo2"]
             self._current_state = "photo2"
             self._show_goal = True
             self._goal_text = "Беги"
             return
         if (self._examination_available and
-                self._click_areas.is_in_area(x, y, "examination_area")):
+                self.click_areas.is_in_area(x, y, "examination_area")):
             self._show_examination = True
             self._examination_index = 0
             self._examination_available = False
-        elif self._click_areas.is_in_area(x, y, "door_photo1"):
-            self._current_photo = self._photo_manager._photos["photo2"]
+        elif self.click_areas.is_in_area(x, y, "door_photo1"):
+            self.current_photo = self.photo_manager._photos["photo2"]
             self._current_state = "photo2"
             if not self._photo2_texts_shown:
                 self._show_photo2_text = True
@@ -1075,26 +1070,25 @@ class PhotoGame(arcade.Window):
             if self._door_info_found:
                 self._goal_text = "найти инфу про препараты"
             self._show_goal = True
-        elif self._click_areas.is_in_area(x, y, "cabinet_photo1"):
-            self._current_photo = self._photo_manager._photos["photo4"]
+        elif self.click_areas.is_in_area(x, y, "cabinet_photo1"):
+            self.current_photo = self.photo_manager._photos["photo4"]
             self._current_state = "photo4"
 
     def handle_photo4_text_click(self, x: float, y: float) -> None:
-        if self._photo4_text_index < len(self._texts.photo4_texts) - 1:
+        if self._photo4_text_index < len(self.texts.photo4_texts) - 1:
             self._photo4_text_index += 1
         else:
             self._photo4_text_active = False
             self._after_photo4_sequence_step = 1
 
     def handle_photo4_click(self, x: float, y: float) -> None:
-        if self._click_areas.is_in_area(x, y, "back_from_cabinet"):
-            self._current_photo = self._photo_manager._photos["photo1"]
+        if self.click_areas.is_in_area(x, y, "back_from_cabinet"):
+            self.current_photo = self.photo_manager._photos["photo1"]
             self._current_state = "photo1"
             if self._goal_text == "провести осмотр":
                 self._examination_available = True
-        # ВОТ ЗДЕСЬ ДОБАВЛЕНА ПРОВЕРКА ЦЕЛИ!
-        elif (self._click_areas.is_in_area(x, y, "safe_area_photo4") and
-              self._goal_text == "Взять препарат и ввести в тело"):  # Проверяем цель
+        elif (self.click_areas.is_in_area(x, y, "safe_area_photo4") and
+              self._goal_text == "Взять препарат и ввести в тело"):
             if not self._safe_checked:
                 self._photo4_text_active = True
                 self._photo4_text_index = 0
@@ -1107,7 +1101,7 @@ class PhotoGame(arcade.Window):
             self._show_text = False
             self._text_finished = True
             self._current_text_index = 0
-            self._current_photo = self._photo_manager._photos["photo2"]
+            self.current_photo = self.photo_manager._photos["photo2"]
             self._current_state = "photo2"
             if not self._photo2_texts_shown:
                 self._show_photo2_text = True
@@ -1118,7 +1112,7 @@ class PhotoGame(arcade.Window):
             arcade.set_background_color(arcade.color.DEFAULT)
 
     def handle_phone_call_click(self) -> None:
-        if self._phone_call_index < len(self._texts.phone_call_texts) - 1:
+        if self._phone_call_index < len(self.texts.phone_call_texts) - 1:
             self._phone_call_index += 1
         else:
             self._show_phone_call = False
@@ -1129,12 +1123,12 @@ class PhotoGame(arcade.Window):
         self._show_after_call_text = False
 
     def handle_examination_click(self) -> None:
-        if self._examination_index < len(self._texts.examination_texts) - 1:
+        if self._examination_index < len(self.texts.examination_texts) - 1:
             self._examination_index += 1
             if self._examination_index == 2:
                 self._show_goal = False
                 self._goal_text = ""
-            if self._examination_index == len(self._texts.examination_texts) - 1:
+            if self._examination_index == len(self.texts.examination_texts) - 1:
                 self._goal_text = "написать отчет об состоянии"
                 self._show_goal = True
                 self._report_available = True
@@ -1143,8 +1137,8 @@ class PhotoGame(arcade.Window):
             self._examination_finished = True
 
     def handle_report_click(self, x: float, y: float) -> None:
-        if self._click_areas.is_in_area(x, y, "back_from_photo6"):
-            self._current_photo = self._photo_manager._photos["photo3"]
+        if self.click_areas.is_in_area(x, y, "back_from_photo6"):
+            self.current_photo = self.photo_manager._photos["photo3"]
             self._current_state = "photo3"
 
             if not self._photo6_visited:
@@ -1156,20 +1150,20 @@ class PhotoGame(arcade.Window):
             return
 
         if self._photo6_visited:
-            self._current_photo = self._photo_manager._photos["photo3"]
+            self.current_photo = self.photo_manager._photos["photo3"]
             self._current_state = "photo3"
             self._came_from_photo6 = True
             return
 
-        if len(self._current_report_texts) < len(self._texts.report_texts):
-            next_text: str = self._texts.report_texts[len(self._current_report_texts)]
+        if len(self._current_report_texts) < len(self.texts.report_texts):
+            next_text: str = self.texts.report_texts[len(self._current_report_texts)]
             self._current_report_texts.append(next_text)
-            if len(self._current_report_texts) == len(self._texts.report_texts):
+            if len(self._current_report_texts) == len(self.texts.report_texts):
                 self._report_finished = True
                 self._photo6_visited = True
 
     def handle_photo2_text_click(self) -> None:
-        if self._photo2_text_index < len(self._texts.photo2_texts) - 1:
+        if self._photo2_text_index < len(self.texts.photo2_texts) - 1:
             self._photo2_text_index += 1
         else:
             self._show_photo2_text = False
@@ -1181,7 +1175,7 @@ class PhotoGame(arcade.Window):
     def handle_black_screen_click(self) -> None:
         self._show_black_screen = False
         self._black_screen_shown = True
-        self._current_photo = self._photo_manager._photos["photo2"]
+        self.current_photo = self.photo_manager._photos["photo2"]
         self._current_state = "photo2"
         self._show_monologue_on_photo2 = True
         self._monologue_index = 0
@@ -1189,7 +1183,7 @@ class PhotoGame(arcade.Window):
         arcade.set_background_color(arcade.color.DEFAULT)
 
     def handle_monologue_click(self) -> None:
-        if self._monologue_index < len(self._texts.monologue_after_black) - 1:
+        if self._monologue_index < len(self.texts.monologue_after_black) - 1:
             self._monologue_index += 1
         else:
             self._show_monologue_on_photo2 = False
@@ -1198,7 +1192,7 @@ class PhotoGame(arcade.Window):
             self._show_goal = True
 
     def handle_door_locked_click(self) -> None:
-        if self._door_locked_index < len(self._texts.door_locked_texts) - 1:
+        if self._door_locked_index < len(self.texts.door_locked_texts) - 1:
             self._door_locked_index += 1
         else:
             self._show_door_locked = False
@@ -1208,46 +1202,46 @@ class PhotoGame(arcade.Window):
             self._show_goal = True
 
     def handle_photo7_click(self, x: float, y: float) -> None:
-        if self._click_areas.is_in_area(x, y, "back_from_photo7"):
+        if self.click_areas.is_in_area(x, y, "back_from_photo7"):
             self._show_photo7 = False
             self._photo7_visited = True
-            if self._photo7_text_index == len(self._texts.door_info_texts) - 1:
+            if self._photo7_text_index == len(self.texts.door_info_texts) - 1:
                 self._door_info_found = True
                 self._goal_text = "найти инфу про препараты"
-            self._current_photo = self._photo_manager._photos["photo9"]
+            self.current_photo = self.photo_manager._photos["photo9"]
             self._current_state = "photo9"
             self._show_photo9 = True
             return
         if self._photo7_visited:
-            text_list: list = self._texts.photo7_repeat_texts
+            text_list: list = self.texts.photo7_repeat_texts
         else:
-            text_list: list = self._texts.door_info_texts
+            text_list: list = self.texts.door_info_texts
         if self._photo7_text_index < len(text_list) - 1:
             self._photo7_text_index += 1
 
     def handle_photo8_click(self, x: float, y: float) -> None:
-        if self._click_areas.is_in_area(x, y, "back_from_photo8"):
+        if self.click_areas.is_in_area(x, y, "back_from_photo8"):
             self._show_photo8 = False
-            self._current_photo = self._photo_manager._photos["photo9"]
+            self.current_photo = self.photo_manager._photos["photo9"]
             self._current_state = "photo9"
             self._show_photo9 = True
             return
-        if self._click_areas.is_in_area(x, y, "photo8_to_photo1"):
+        if self.click_areas.is_in_area(x, y, "photo8_to_photo1"):
             self._show_photo8 = False
-            self._current_photo = self._photo_manager._photos["photo1"]
+            self.current_photo = self.photo_manager._photos["photo1"]
             self._current_state = "photo1"
             self._show_goal = False
             return
 
         if self._photo8_visited:
-            if self._photo8_text_index < len(self._texts.photo8_repeat_texts) - 1:
+            if self._photo8_text_index < len(self.texts.photo8_repeat_texts) - 1:
                 self._photo8_text_index += 1
             else:
                 self._show_photo8 = False
-                self._current_photo = self._photo_manager._photos["photo2"]
+                self.current_photo = self.photo_manager._photos["photo2"]
                 self._current_state = "photo2"
         else:
-            if self._photo8_text_index < len(self._texts.photo8_texts) - 1:
+            if self._photo8_text_index < len(self.texts.photo8_texts) - 1:
                 self._photo8_text_index += 1
             else:
                 self._photo8_visited = True
@@ -1255,32 +1249,32 @@ class PhotoGame(arcade.Window):
                 self._goal_text = "Взять препарат и ввести в тело"
                 self._show_goal = True
                 self._show_photo8 = False
-                self._current_photo = self._photo_manager._photos["photo2"]
+                self.current_photo = self.photo_manager._photos["photo2"]
                 self._current_state = "photo2"
 
     def handle_photo9_click(self, x: float, y: float) -> None:
         if (self._goal_text == "Найти инфу про дверь" and
-                self._click_areas.is_in_area(x, y, "photo9_to_photo8")):
+                self.click_areas.is_in_area(x, y, "photo9_to_photo8")):
             return
 
-        if self._click_areas.is_in_area(x, y, "photo9_to_photo7"):
+        if self.click_areas.is_in_area(x, y, "photo9_to_photo7"):
             self._show_photo9 = False
-            self._current_photo = self._photo_manager._photos["photo7"]
+            self.current_photo = self.photo_manager._photos["photo7"]
             self._current_state = "photo7"
             self._show_photo7 = True
             self._photo7_text_index = 0
             return
-        if self._click_areas.is_in_area(x, y, "photo9_to_photo8"):
+        if self.click_areas.is_in_area(x, y, "photo9_to_photo8"):
             self._show_photo9 = False
-            self._current_photo = self._photo_manager._photos["photo8"]
+            self.current_photo = self.photo_manager._photos["photo8"]
             self._current_state = "photo8"
             self._show_photo8 = True
             self._photo8_text_index = 0
             self._show_goal = False
             return
-        if self._click_areas.is_in_area(x, y, "back_from_photo9"):
+        if self.click_areas.is_in_area(x, y, "back_from_photo9"):
             self._show_photo9 = False
-            self._current_photo = self._photo_manager._photos["photo3"]
+            self.current_photo = self.photo_manager._photos["photo3"]
             self._current_state = "photo3"
             if self._door_info_found:
                 self._goal_text = "найти инфу про препараты"
@@ -1290,20 +1284,20 @@ class PhotoGame(arcade.Window):
     def handle_photo3_click(self, x: float, y: float) -> None:
         if (self._goal_text == "Найти инфу про дверь" or
                 self._goal_text == "найти инфу про препараты"):
-            if self._click_areas.is_in_area(x, y, "door_info_folder"):
-                self._current_photo = self._photo_manager._photos["photo9"]
+            if self.click_areas.is_in_area(x, y, "door_info_folder"):
+                self.current_photo = self.photo_manager._photos["photo9"]
                 self._current_state = "photo9"
                 self._show_photo9 = True
                 self._show_goal = False
                 return
         if (self._report_available and
-                self._click_areas.is_in_area(x, y, "report_area")):
-            self._current_photo = self._photo_manager._photos["photo6"]
+                self.click_areas.is_in_area(x, y, "report_area")):
+            self.current_photo = self.photo_manager._photos["photo6"]
             self._current_state = "report"
             self._show_goal = False
             self._current_report_texts = []
-        elif self._click_areas.is_in_area(x, y, "back_from_computer"):
-            self._current_photo = self._photo_manager._photos["photo2"]
+        elif self.click_areas.is_in_area(x, y, "back_from_computer"):
+            self.current_photo = self.photo_manager._photos["photo2"]
             self._current_state = "photo2"
             if self._came_from_photo6 and not self._black_screen_shown:
                 self._show_black_screen = True
