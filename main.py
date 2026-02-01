@@ -13,6 +13,8 @@ class MyFlatButton(arcade.gui.UIFlatButton):
         window.current_text_index = 1
         arcade.set_background_color(arcade.color.BLACK)
         window.start_music()
+        window.manager.disable()
+        window.manager.clear()
 
 
 class RulesButton(arcade.gui.UIFlatButton):
@@ -33,7 +35,7 @@ class ClickAreas:
             "cabinet_photo1": {"x_min": 10, "x_max": 70, "y_min": 270, "y_max": 430},
             "back_from_cabinet": {"x_min": 700, "x_max": 800, "y_min": 0, "y_max": 600},
             "examination_area": {"x_min": 300, "x_max": 500, "y_min": 200, "y_max": 400},
-            "report_area": {"x_min": 160, "x_max": 200, "y_min": 50, "y_max": 100},
+            "report_area": {"x_min": 150, "x_max": 220, "y_min": 45, "y_max": 100},
             "back_from_photo6": {"x_min": 700, "x_max": 800, "y_min": 0, "y_max": 100},
             "door_photo2": {"x_min": 450, "x_max": 1000, "y_min": 0, "y_max": 700},
             "door_info_folder": {"x_min": 20, "x_max": 80, "y_min": 50, "y_max": 100},
@@ -62,23 +64,13 @@ class PhotoManager:
 
     def load_photos(self):
         photo_files = {
-            "photo1": "data/кабинет с телом1.jpg",
-            "photo2": "data/Комната с компом2.png",
-            "photo3": "data/рабочий стол_arcade3.jpg",
-            "photo4": "data/+Белый+шка_измен4.jpeg",
-            "photo5": "data/Group 1 (1)5.png",
-            "photo6": "data/Отчет6.png",
-            "photo7": "data/Правила7.png",
-            "photo8": "data/Препараты8.png",
-            "photo9": "data/Важное9.png",
-            "photo10": "data/пароль10.jpg",
-            "photo11": "data/первая комната БЕЗ ТЕЛА11.png",
-            "photo12_1": "data/Галлюн1.png",
-            "photo12_2": "data/Галлюн12-2.png",
-            "photo13_1": "data/псих13-1.png",
-            "photo13_2": "data/псих13-2.png",
-            "photo14": "data/лес14.png",
-            "photo2_1": "data/комп красный2_1.png"
+            "photo1": "data/кабинет с телом1.jpg", "photo2": "data/Комната с компом2.png",
+            "photo3": "data/рабочий стол_arcade3.jpg", "photo4": "data/+Белый+шка_измен4.jpeg",
+            "photo5": "data/Group 1 (1)5.png", "photo6": "data/Отчет6.png", "photo7": "data/Правила7.png",
+            "photo8": "data/Препараты8.png", "photo9": "data/Важное9.png", "photo10": "data/пароль10.jpg",
+            "photo11": "data/первая комната БЕЗ ТЕЛА11.png", "photo12_1": "data/Галлюн1.png",
+            "photo12_2": "data/Галлюн12-2.png", "photo13_1": "data/псих13-1.png", "photo13_2": "data/псих13-2.png",
+            "photo14": "data/лес14.png", "photo2_1": "data/комп красный2_1.png"
         }
         for key, filepath in photo_files.items():
             try:
@@ -116,7 +108,8 @@ class GameTexts:
                                  "Рядом с тобой компьютер, там в папках всё, что тебе нужно: инфа про пациентов, препараты, документация, отчёты, что тебе будет писать после каждой смены.",
                                  "В папку 'пароли' тебе лезть нечего...",
                                  "Твой кабинет слева от тебя. С прошлой смены осталось одно незаконченное тело, начни с него.",
-                                 "Нужно провести общий осмотр, да и в целом ты сам разберёшься.", "- А-а, ладно, понял.",
+                                 "Нужно провести общий осмотр, да и в целом ты сам разберёшься.",
+                                 "- А-а, ладно, понял.",
                                  "А что насчёт помощника? Он опаздывает?",
                                  "- Какой ещё помощник? На эту смену... ты один.", "Э-э, ладно, мне пора.",
                                  "Давай, работай."]
@@ -185,13 +178,102 @@ class GameTexts:
                           "Но я по-прежнему здесь.", "Кх, идиот, мы ещё вернёмся к этому разговору.",
                           "А ты в этом уверен?))", "Но он повторится."]
         self.hurry_text = "Том, не тяни время, пора валить."
-        # Новый финальный текст
         self.final_end_text = "Увы, сны снятся не только ночью."
+
+
+class RulesScreenRenderer:
+    def __init__(self, texts):
+        self.texts = texts
+
+    def draw(self):
+        arcade.set_background_color(arcade.color.BLACK)
+        arcade.draw_text(
+            self.texts.rules_text,
+            SCREEN_WIDTH // 2,
+            SCREEN_HEIGHT // 2,
+            arcade.color.WHITE,
+            18,
+            anchor_x="center",
+            anchor_y="center",
+            align="center",
+            width=SCREEN_WIDTH - 50,
+            multiline=True
+        )
+        arcade.draw_text(
+            "Нажмите для возврата...",
+            SCREEN_WIDTH // 2,
+            50,
+            arcade.color.LIGHT_GRAY,
+            14,
+            anchor_x="center"
+        )
+
+
+class GoalRenderer:
+    def __init__(self, game_state):
+        self.game_state = game_state
+
+    def should_draw_goal(self):
+        if not self.game_state.show_goal:
+            return False
+        if any([
+            self.game_state.show_rules,
+            self.game_state.show_photo10_text,
+            self.game_state.final_sequence_active,
+            self.game_state.show_black_screen_dialogue,
+            self.game_state.show_body_after_seq_text,
+            self.game_state.show_text,
+            self.game_state.show_phone_call,
+            self.game_state.show_after_call_text,
+            self.game_state.show_examination,
+            self.game_state.current_state in ["report", "photo6"],
+            self.game_state.show_monologue_on_photo2,
+            self.game_state.show_door_closed_title,
+            self.game_state.show_door_locked,
+            self.game_state.show_photo7,
+            self.game_state.show_photo8,
+            self.game_state.show_photo9,
+            self.game_state.photo4_text_active,
+            self.game_state.after_photo4_sequence_step > 0,
+            self.game_state.photo1_after_seq_active,
+            self.game_state.photo12_step > 0,
+            self.game_state.show_black_screen,
+            self.game_state.door_closed_final_active,
+            self.game_state.show_door_open,
+            self.game_state.door_open_sequence_active,
+            self.game_state.show_photo14,
+            self.game_state.after_door_open_black,
+            self.game_state.after_photo14_black,
+            self.game_state.show_photo13_1,
+            self.game_state.show_photo13_2,
+            self.game_state.show_hurry_text,
+            self.game_state.show_final_black_screen
+        ]):
+            return False
+        return True
+
+    def draw(self):
+        if self.should_draw_goal():
+            arcade.draw_text(
+                "Цель:",
+                30,
+                SCREEN_HEIGHT - 50,
+                arcade.color.WHITE,
+                21,
+                bold=True
+            )
+            arcade.draw_text(
+                self.game_state.goal_text,
+                110,
+                SCREEN_HEIGHT - 50,
+                arcade.color.WHITE,
+                18
+            )
 
 
 class PhotoGame(arcade.Window):
     def __init__(self) -> None:
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Клик для смены фото")
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Me")
         self.photo_manager = PhotoManager()
         self.click_areas = ClickAreas()
         self.texts = GameTexts()
@@ -201,6 +283,7 @@ class PhotoGame(arcade.Window):
         self.music_player_2 = arcade.Sound("data/mel_2.mp3")
         self.music_player = None
         self.current_music_playing = None  # Текущая играющая музыка
+        self.active = True
 
         self.show_text = False
         self.current_text_index = 0
@@ -287,7 +370,16 @@ class PhotoGame(arcade.Window):
 
         self.current_photo = self.photo_manager.photos["photo5"]
         self.current_state = "start_screen"
+
+        # Создаем рендереры
+        self.rules_renderer = RulesScreenRenderer(self.texts)
+        self.goal_renderer = GoalRenderer(self)
+
         self.setup_ui()
+
+    def disable_menu_ui(self):
+        self.manager.disable()
+        self.manager.clear()
 
     def setup_ui(self):
         start_button = MyFlatButton(text="Начать", width=200, height=40)
@@ -345,7 +437,7 @@ class PhotoGame(arcade.Window):
         elif self.door_open_sequence_active:
             self.draw_door_open_sequence()
         elif self.show_rules:
-            self.draw_rules_screen()
+            self.rules_renderer.draw()  # Используем класс RulesScreenRenderer
         elif self.show_photo10_text:
             self.draw_photo10_with_text()
         elif self.final_sequence_active and self.final_text_index < len(self.texts.final_texts):
@@ -414,7 +506,9 @@ class PhotoGame(arcade.Window):
                 self.manager.draw()
         if self.show_hurry_text:
             self.draw_hurry_text()
-        self.draw_goal()
+
+        # Используем класс GoalRenderer для отрисовки цели
+        self.goal_renderer.draw()
 
     def draw_door_closed_title(self):
         arcade.draw_texture_rect(self.photo_manager.photos["photo2"],
@@ -538,13 +632,6 @@ class PhotoGame(arcade.Window):
                          anchor_x="center", anchor_y="center",
                          align="center", width=SCREEN_WIDTH - 100, multiline=True)
 
-    def draw_rules_screen(self):
-        arcade.set_background_color(arcade.color.BLACK)
-        arcade.draw_text(self.texts.rules_text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.WHITE, 18,
-                         anchor_x="center", anchor_y="center", align="center", width=SCREEN_WIDTH - 50, multiline=True)
-        arcade.draw_text("Нажмите для возврата...", SCREEN_WIDTH // 2, 50, arcade.color.LIGHT_GRAY, 14,
-                         anchor_x="center")
-
     def draw_main_text(self):
         text = self.texts.texts.get(self.current_text_index, "")
         arcade.draw_text(text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.WHITE, 20, anchor_x="center",
@@ -626,28 +713,12 @@ class PhotoGame(arcade.Window):
         arcade.draw_text(self.texts.hurry_text, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, arcade.color.RED, 30,
                          anchor_x="center", anchor_y="center", align="center", bold=True)
 
-    def draw_goal(self):
-        if (self.show_goal and not self.show_rules and not self.show_photo10_text and not self.final_sequence_active and
-                not self.show_black_screen_dialogue and not self.show_body_after_seq_text and not self.show_text and
-                not self.show_phone_call and not self.show_after_call_text and not self.show_examination and
-                self.current_state != "report" and self.current_state != "photo6" and not self.show_monologue_on_photo2 and
-                not self.show_door_closed_title and not self.show_door_locked and not self.show_photo7 and
-                not self.show_photo8 and not self.show_photo9 and not self.photo4_text_active and
-                self.after_photo4_sequence_step == 0 and not self.photo1_after_seq_active and self.photo12_step == 0 and
-                not self.show_black_screen and not self.door_closed_final_active and not self.show_door_open and
-                not self.door_open_sequence_active and not self.show_photo14 and not self.after_door_open_black and
-                not self.after_photo14_black and not self.show_photo13_1 and not self.show_photo13_2 and
-                not self.show_hurry_text and not self.show_final_black_screen):  # Добавили проверку на финальный экран
-            arcade.draw_text("Цель:", 30, SCREEN_HEIGHT - 50, arcade.color.WHITE, 21, bold=True)
-            arcade.draw_text(self.goal_text, 110, SCREEN_HEIGHT - 50, arcade.color.WHITE, 18)
-
     def on_mouse_press(self, x, y, button, modifiers):
+        if not self.active:
+            return
         if button != arcade.MOUSE_BUTTON_LEFT:
             return
-
-        # Обработка финального черного экрана
         if self.show_final_black_screen:
-            # Закрываем окно при клике на финальном экране
             arcade.close_window()
             return
 
@@ -994,6 +1065,21 @@ class PhotoGame(arcade.Window):
             self.photo4_text_active = False
             self.after_photo4_sequence_step = 1
 
+    def handle_photo4_click(self, x, y):
+        if self.click_areas.is_in_area(x, y, "back_from_cabinet"):
+            self.current_photo = self.photo_manager.photos["photo1"]
+            self.current_state = "photo1"
+            if self.goal_text == "провести осмотр":
+                self.examination_available = True
+        # ВОТ ЗДЕСЬ ДОБАВЛЕНА ПРОВЕРКА ЦЕЛИ!
+        elif (self.click_areas.is_in_area(x, y, "safe_area_photo4") and
+              self.goal_text == "Взять препарат и ввести в тело"):  # Проверяем цель
+            if not self.safe_checked:
+                self.photo4_text_active = True
+                self.photo4_text_index = 0
+                self.safe_checked = True
+        # Если клик на safe_area_photo4, но цель не соответствует, ничего не происходит
+
     def handle_main_text_click(self):
         if self.current_text_index < 5:
             self.current_text_index += 1
@@ -1181,18 +1267,6 @@ class PhotoGame(arcade.Window):
             else:
                 if self.goal_text:
                     self.show_goal = True
-
-    def handle_photo4_click(self, x, y):
-        if self.click_areas.is_in_area(x, y, "back_from_cabinet"):
-            self.current_photo = self.photo_manager.photos["photo1"]
-            self.current_state = "photo1"
-            if self.goal_text == "провести осмотр":
-                self.examination_available = True
-        elif self.click_areas.is_in_area(x, y, "safe_area_photo4"):
-            if not self.safe_checked:
-                self.photo4_text_active = True
-                self.photo4_text_index = 0
-                self.safe_checked = True
 
 
 if __name__ == "__main__":
